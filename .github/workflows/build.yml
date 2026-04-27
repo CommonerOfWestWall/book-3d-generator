@@ -1,0 +1,32 @@
+name: Build exe
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build exe
+        run: npm run build
+        env:
+          ELECTRON_CACHE: ${{ runner.temp }}/electron_cache
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist_portable/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

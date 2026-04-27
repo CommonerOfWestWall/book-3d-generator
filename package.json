@@ -1,0 +1,58 @@
+{
+  "name": "book-3d-app",
+  "version": "1.0.0",
+  "description": "立体书样机生成器 - 一键生成3D书籍效果图",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win dir --x64",
+    "pack": "electron-builder --win dir --x64"
+  },
+  "author": "Book3D Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "three": "^0.171.0"
+  },
+  "build": {
+    "appId": "com.book3d.app",
+    "productName": "立体书样机生成器",
+    "directories": {
+      "output": "dist_portable"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "立体书样机生成器"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "icon.ico",
+      "renderer/**/*",
+      "!renderer/*.bak*",
+      "!**/*.bak*",
+      "!**/codex_check/**/*",
+      "!**/verify*.py",
+      "!**/*.png"
+    ]
+  }
+}

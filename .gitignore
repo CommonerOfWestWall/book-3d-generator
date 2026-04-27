@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist_portable/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# Backup files
+*.bak*
+*bak_*
+
+# IDE
+.vscode/
+.idea/
+
+# CodeX checkers
+**/codex_check/
+
+# Large test assets
+renderer/test_screenshots/
