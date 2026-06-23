@@ -9,6 +9,7 @@
 立体书样机生成器是一款基于 **Electron + Three.js** 的 Windows 桌面应用，可将书籍封面展开长图一键渲染为逼真的 **3D 书籍效果图**，支持：
 
 - 🖼️ 支持封面长图格式（封面 + 书脊 + 封底水平拼接图）
+- ✂️ 支持裁切两端勒口，只用实际封底 / 书脊 / 封面生成书模
 - 📐 精准控制书脊宽度、封面厚度、内页深度
 - 🔄 三种翻页视角：平摊视角 / 半开视角 / 全开视角
 - 🎨 背景模式：纯透明 / 纯色 / 渐变
@@ -50,7 +51,7 @@ npm install
 npm start
 ```
 
-#### 打包为 exe
+#### 打包为 Electron exe
 
 ```bash
 npm install --save-dev electron-builder
@@ -58,6 +59,17 @@ npm run build
 ```
 
 打包产物在 `dist_portable/` 目录中。
+
+#### 打包为 Tauri 2 轻量版
+
+需要先安装 Rust 和 Windows WebView2 运行环境。
+
+```bash
+npm install
+npm run tauri:build
+```
+
+Tauri 产物在 `src-tauri/target/release/` 和 `src-tauri/target/release/bundle/` 目录中。
 
 ---
 
@@ -76,6 +88,8 @@ npm run build
 | 封底（右） | 书籍背面 |
 
 支持的图片格式：`jpg / jpeg / png / tif / tiff / webp / bmp`
+
+如果展开图两端包含勒口，在选择书脊弹窗中勾选“裁切两端勒口”，拖动蓝色裁切线包住实际封底、书脊和封面；蓝线外侧不会参与书模生成。
 
 ---
 
@@ -110,9 +124,9 @@ npm run build
 
 | 层级 | 技术 |
 |------|------|
-| 桌面框架 | Electron 33 |
+| 桌面框架 | Electron 33 / Tauri 2 |
 | 3D 渲染 | Three.js 0.171 |
-| 构建工具 | electron-builder |
+| 构建工具 | electron-builder / Tauri CLI |
 | 许可证 | MIT |
 
 ---
@@ -137,11 +151,12 @@ npm run build
 
 ### Overview
 
-A lightweight Windows desktop application built with **Electron + Three.js** that renders book cover images into photorealistic **3D book mockups** — no internet required, no installation needed.
+A lightweight Windows desktop application built with **Electron / Tauri 2 + Three.js** that renders book cover images into photorealistic **3D book mockups** — no internet required, no installation needed.
 
 ### Features
 
 - 📐 Support for flat-spread cover images (front cover + spine + back cover)
+- ✂️ Optional flap cropping for cover spreads that include front/back flaps
 - 📏 Precise control: spine width, cover thickness, page depth
 - 🔄 Three open modes: flat / half-open / fully open
 - 🎨 Background modes: transparent / white / gradient
@@ -161,12 +176,46 @@ npm install
 npm start
 ```
 
-### Build exe
+### Cover Image Format
+
+The app accepts one horizontal flat-spread image:
+
+```text
+[front cover] [spine] [back cover]
+```
+
+If your spread includes book flaps on both outer edges, enable **Crop outer flaps** in the spine selection dialog. Drag the blue crop handles so they wrap only the real back cover, spine, and front cover. The areas outside the blue handles will be removed before rendering the 3D book.
+
+Supported image formats: `jpg / jpeg / png / tif / tiff / webp / bmp`
+
+### Build Electron exe
 
 ```bash
 npm install --save-dev electron-builder
 npm run build
 ```
+
+Electron output is written to `dist_portable/`.
+
+### Build Tauri 2 lightweight app
+
+Rust and Windows WebView2 are required.
+
+```bash
+npm install
+npm run tauri:build
+```
+
+Tauri output is written to `src-tauri/target/release/` and `src-tauri/target/release/bundle/`.
+
+### Tech Stack
+
+| Layer | Technology |
+|------|------|
+| Desktop shell | Electron 33 / Tauri 2 |
+| 3D rendering | Three.js 0.171 |
+| Build tools | electron-builder / Tauri CLI |
+| License | MIT |
 
 ### License
 

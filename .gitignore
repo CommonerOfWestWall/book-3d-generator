@@ -5,6 +5,8 @@ node_modules/
 dist/
 dist_portable/
 out/
+src-tauri/gen/
+src-tauri/target/
 
 # OS files
 .DS_Store

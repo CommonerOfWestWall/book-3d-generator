@@ -456,13 +456,25 @@ select:focus { outline: none; border-color: var(--accent); }
   display: block;
 }
 
-#spine-line-left, #spine-line-right {
+#spine-line-left, #spine-line-right, #crop-line-left, #crop-line-right {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #ff4444;
   cursor: ew-resize;
+}
+
+#spine-line-left, #spine-line-right {
+  background: #ff4444;
+}
+
+#crop-line-left, #crop-line-right {
+  display: none;
+  background: var(--accent);
+}
+
+#crop-line-left.active, #crop-line-right.active {
+  display: block;
 }
 
 #spine-fill {
@@ -470,6 +482,32 @@ select:focus { outline: none; border-color: var(--accent); }
   top: 0;
   bottom: 0;
   background: rgba(255, 68, 68, 0.2);
+}
+
+#crop-fill-left, #crop-fill-right {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(79, 195, 247, 0.18);
+}
+
+#crop-fill-left.active, #crop-fill-right.active {
+  display: block;
+}
+
+.option-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 8px 0 12px;
+}
+
+.option-row input {
+  margin-top: 3px;
 }
 
 .spine-modal-footer {
@@ -501,6 +539,10 @@ select:focus { outline: none; border-color: var(--accent); }
   <!-- 书脊设置 -->
   <div class="panel-section" id="spine-section" style="display: none;">
     <div class="panel-title">📐 书脊/厚度设置</div>
+    <label class="option-row">
+      <input type="checkbox" id="flap-crop-toggle">
+      <span>裁切两端勒口</span>
+    </label>
     <div class="slider-group">
       <div class="slider-label">
         <span>书脊左边线</span>
@@ -516,7 +558,7 @@ select:focus { outline: none; border-color: var(--accent); }
       <input type="range" id="spine-right-slider" min="0" max="100" value="56" step="0.1">
     </div>
     <div style="font-size: 12px; color: var(--text-dim); line-height: 1.6; margin: -4px 0 12px;">
-      两条线夹住的区域就是书脊，区域越宽，生成的书越厚。
+      两条红线夹住的区域就是书脊；勾选裁切勒口后，弹窗里的蓝线外侧会被去除。
     </div>
     <button class="btn btn-primary btn-full" id="confirm-spine-btn">
       ✅ 确认书脊并渲染
@@ -683,16 +725,25 @@ select:focus { outline: none; border-color: var(--accent); }
   <div class="spine-modal-content">
     <div class="spine-modal-header">
       <h3 class="spine-modal-title">📐 选择书脊区域（决定书厚）</h3>
-      <span style="color: var(--text-dim); font-size: 13px;">拖动两条红线夹住书脊，红色区域越宽书越厚</span>
+      <span style="color: var(--text-dim); font-size: 13px;">红线夹住书脊；开启勒口裁切后，蓝线外侧会去除</span>
     </div>
+    <label class="option-row">
+      <input type="checkbox" id="modal-flap-crop-toggle">
+      <span>裁切两端勒口</span>
+    </label>
     <div class="spine-preview">
+      <div id="crop-fill-left"></div>
+      <div id="crop-fill-right"></div>
       <div id="spine-fill"></div>
+      <div id="crop-line-left"></div>
+      <div id="crop-line-right"></div>
       <div id="spine-line-left"></div>
       <div id="spine-line-right"></div>
       <img id="spine-preview-img" alt="封面预览">
     </div>
     <div style="margin-top: 12px; font-size: 13px; color: var(--text-dim);">
       书脊宽度/书厚参考: <span id="spine-width-display" style="color: var(--accent);">12%</span>
+      <span id="flap-crop-display" style="display: none; margin-left: 12px;">勒口裁切: <span style="color: var(--accent);" id="flap-crop-width-display">0%</span></span>
     </div>
     <div class="spine-modal-footer">
       <button class="btn btn-secondary" id="spine-cancel-btn">取消</button>
@@ -713,6 +764,8 @@ let bookType = 'paperback';
 let bgType = 'transparent';
 let rotX = 0, rotY = 35, rotZ = 0, cameraDistance = 11.5, cameraHeight = 0;
 let spineLeft = 44, spineRight = 56;
+let flapCropEnabled = false;
+let cropLeft = 0, cropRight = 100;
 let isRendering = false;
 let loadedPreset = false;
 let bookSize = { w: 4.0, h: 5.66, d: 0.52 };
@@ -724,6 +777,51 @@ let canvas, canvasWidth, canvasHeight;
 
 // Three.js 全局
 let THREE;
+
+const book3dBridge = {
+  async saveFileDialog(defaultName, fmt) {
+    if (window.electronAPI?.saveFileDialog) {
+      return window.electronAPI.saveFileDialog(defaultName);
+    }
+    if (window.__TAURI__?.dialog?.save) {
+      const extension = fmt === 'jpg' ? 'jpg' : 'png';
+      const filePath = await window.__TAURI__.dialog.save({
+        defaultPath: defaultName,
+        filters: [{ name: extension.toUpperCase() + ' 图片', extensions: [extension] }]
+      });
+      return filePath ? { canceled: false, filePath } : { canceled: true };
+    }
+    return { canceled: true };
+  },
+
+  async selectOutputFolder() {
+    if (window.electronAPI?.selectOutputFolder) {
+      return window.electronAPI.selectOutputFolder();
+    }
+    if (window.__TAURI__?.dialog?.open) {
+      const filePath = await window.__TAURI__.dialog.open({
+        directory: true,
+        multiple: false
+      });
+      return filePath ? { canceled: false, filePaths: [filePath] } : { canceled: true, filePaths: [] };
+    }
+    return { canceled: true, filePaths: [] };
+  },
+
+  async saveImageFile(filePath, base64Data) {
+    if (window.electronAPI?.saveImageFile) {
+      return window.electronAPI.saveImageFile(filePath, base64Data);
+    }
+    if (window.__TAURI__?.core?.invoke) {
+      await window.__TAURI__.core.invoke('save_image_file', {
+        filePath,
+        base64Data
+      });
+      return true;
+    }
+    return false;
+  }
+};
 
 // ══════════════════════════════════════════════════════════════
 // Three.js 初始化 (无光照版本)
@@ -1206,20 +1304,34 @@ function initUI() {
   // 书脊滑块
   const leftSlider = document.getElementById('spine-left-slider');
   const rightSlider = document.getElementById('spine-right-slider');
+  const flapCropToggle = document.getElementById('flap-crop-toggle');
+  const modalFlapCropToggle = document.getElementById('modal-flap-crop-toggle');
 
   leftSlider.addEventListener('input', () => {
-    spineLeft = Math.min(parseFloat(leftSlider.value), spineRight - 1);
+    const minLeft = flapCropEnabled ? cropLeft + 1 : 0;
+    spineLeft = Math.max(minLeft, Math.min(parseFloat(leftSlider.value), spineRight - 1));
     leftSlider.value = spineLeft;
     document.getElementById('spine-left-val').textContent = spineLeft.toFixed(1) + '%';
     updateSpineLines();
   });
 
   rightSlider.addEventListener('input', () => {
-    spineRight = Math.max(parseFloat(rightSlider.value), spineLeft + 1);
+    const maxRight = flapCropEnabled ? cropRight - 1 : 100;
+    spineRight = Math.min(maxRight, Math.max(parseFloat(rightSlider.value), spineLeft + 1));
     rightSlider.value = spineRight;
     document.getElementById('spine-right-val').textContent = spineRight.toFixed(1) + '%';
     updateSpineLines();
   });
+
+  const onFlapToggle = checked => {
+    flapCropEnabled = checked;
+    flapCropToggle.checked = checked;
+    modalFlapCropToggle.checked = checked;
+    ensureCropBounds();
+    updateSpineLines();
+  };
+  flapCropToggle.addEventListener('change', e => onFlapToggle(e.target.checked));
+  modalFlapCropToggle.addEventListener('change', e => onFlapToggle(e.target.checked));
 
   // 确认书脊
   document.getElementById('confirm-spine-btn').addEventListener('click', () => {
@@ -1317,20 +1429,48 @@ function initUI() {
 
 function updateSpineLines() {
   const fill = document.getElementById('spine-fill');
+  const cropFillLeft = document.getElementById('crop-fill-left');
+  const cropFillRight = document.getElementById('crop-fill-right');
   const leftLine = document.getElementById('spine-line-left');
   const rightLine = document.getElementById('spine-line-right');
+  const cropLineLeft = document.getElementById('crop-line-left');
+  const cropLineRight = document.getElementById('crop-line-right');
   const img = document.getElementById('spine-preview-img');
   const w = img.clientWidth || img.naturalWidth || 1;
   leftLine.style.left = (spineLeft / 100 * w) + 'px';
   rightLine.style.left = (spineRight / 100 * w) + 'px';
   fill.style.left = (spineLeft / 100 * w) + 'px';
   fill.style.width = ((spineRight - spineLeft) / 100 * w) + 'px';
+  cropLineLeft.style.left = (cropLeft / 100 * w) + 'px';
+  cropLineRight.style.left = (cropRight / 100 * w) + 'px';
+  cropFillLeft.style.left = '0px';
+  cropFillLeft.style.width = (cropLeft / 100 * w) + 'px';
+  cropFillRight.style.left = (cropRight / 100 * w) + 'px';
+  cropFillRight.style.width = ((100 - cropRight) / 100 * w) + 'px';
+  [cropLineLeft, cropLineRight, cropFillLeft, cropFillRight].forEach(el => {
+    el.classList.toggle('active', flapCropEnabled);
+  });
   document.getElementById('spine-width-display').textContent = (spineRight - spineLeft).toFixed(1) + '%';
+  document.getElementById('flap-crop-display').style.display = flapCropEnabled ? 'inline' : 'none';
+  document.getElementById('flap-crop-width-display').textContent =
+    (cropLeft + (100 - cropRight)).toFixed(1) + '%';
+}
+
+function ensureCropBounds() {
+  if (!flapCropEnabled) {
+    cropLeft = 0;
+    cropRight = 100;
+    return;
+  }
+  cropLeft = Math.max(0, Math.min(spineLeft - 1, cropLeft));
+  cropRight = Math.min(100, Math.max(spineRight + 1, cropRight));
 }
 
 function setupSpineModal() {
   const leftLine = document.getElementById('spine-line-left');
   const rightLine = document.getElementById('spine-line-right');
+  const cropLineLeft = document.getElementById('crop-line-left');
+  const cropLineRight = document.getElementById('crop-line-right');
   const img = document.getElementById('spine-preview-img');
 
   let dragging = null;
@@ -1341,19 +1481,35 @@ function setupSpineModal() {
     const x = e.clientX - rect.left;
     const pct = (x / rect.width) * 100;
     if (dragging === 'left') {
-      spineLeft = Math.max(0, Math.min(spineRight - 1, pct));
+      const minLeft = flapCropEnabled ? cropLeft + 1 : 0;
+      spineLeft = Math.max(minLeft, Math.min(spineRight - 1, pct));
       document.getElementById('spine-left-slider').value = spineLeft;
       document.getElementById('spine-left-val').textContent = spineLeft.toFixed(1) + '%';
-    } else {
-      spineRight = Math.max(spineLeft + 1, Math.min(100, pct));
+    } else if (dragging === 'right') {
+      const maxRight = flapCropEnabled ? cropRight - 1 : 100;
+      spineRight = Math.max(spineLeft + 1, Math.min(maxRight, pct));
       document.getElementById('spine-right-slider').value = spineRight;
       document.getElementById('spine-right-val').textContent = spineRight.toFixed(1) + '%';
+    } else if (dragging === 'crop-left') {
+      cropLeft = Math.max(0, Math.min(spineLeft - 1, pct));
+    } else if (dragging === 'crop-right') {
+      cropRight = Math.max(spineRight + 1, Math.min(100, pct));
     }
     updateSpineLines();
   }
 
   leftLine.addEventListener('mousedown', e => { dragging = 'left'; e.stopPropagation(); });
   rightLine.addEventListener('mousedown', e => { dragging = 'right'; e.stopPropagation(); });
+  cropLineLeft.addEventListener('mousedown', e => {
+    if (!flapCropEnabled) return;
+    dragging = 'crop-left';
+    e.stopPropagation();
+  });
+  cropLineRight.addEventListener('mousedown', e => {
+    if (!flapCropEnabled) return;
+    dragging = 'crop-right';
+    e.stopPropagation();
+  });
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', () => dragging = null);
 }
@@ -1382,6 +1538,8 @@ function showSpineModal(imgData) {
     const spinePct = spreadRatio > 2.4 ? 6 : 8;
     spineLeft = (100 - spinePct) / 2;
     spineRight = (100 + spinePct) / 2;
+    cropLeft = 0;
+    cropRight = 100;
     document.getElementById('spine-left-slider').value = spineLeft;
     document.getElementById('spine-left-val').textContent = spineLeft.toFixed(1) + '%';
     document.getElementById('spine-right-slider').value = spineRight;
@@ -1412,13 +1570,17 @@ function onSpineModalConfirm() {
 
 function splitCover(img) {
   const w = img.width;
-  const leftX = Math.max(0, Math.min(w - 2, Math.round(spineLeft / 100 * w)));
-  const rightX = Math.max(leftX + 1, Math.min(w - 1, Math.round(spineRight / 100 * w)));
+  const cropStartX = flapCropEnabled ? Math.round(cropLeft / 100 * w) : 0;
+  const cropEndX = flapCropEnabled ? Math.round(cropRight / 100 * w) : w;
+  const usableStartX = Math.max(0, Math.min(w - 3, cropStartX));
+  const usableEndX = Math.max(usableStartX + 3, Math.min(w, cropEndX));
+  const leftX = Math.max(usableStartX + 1, Math.min(usableEndX - 2, Math.round(spineLeft / 100 * w)));
+  const rightX = Math.max(leftX + 1, Math.min(usableEndX - 1, Math.round(spineRight / 100 * w)));
   const spineW = Math.max(1, rightX - leftX);
-  const backW = Math.max(1, leftX);
-  const coverW = Math.max(1, w - rightX);
+  const backW = Math.max(1, leftX - usableStartX);
+  const coverW = Math.max(1, usableEndX - rightX);
 
-  images.back = getRegion(0, 0, backW, img.height);
+  images.back = getRegion(usableStartX, 0, backW, img.height);
   images.spine = getRegion(leftX, 0, spineW, img.height);
   images.cover = getRegion(rightX, 0, coverW, img.height);
   const sampledCover = sampleRegionEdgeColor(rightX, 0, coverW, img.height);
@@ -1537,7 +1699,7 @@ async function exportSingle() {
   const ext = fmt === 'jpg' ? 'jpg' : 'png';
   const defaultName = `书模_立体_${Date.now()}.${ext}`;
 
-  const result = await window.electronAPI?.saveFileDialog(defaultName);
+  const result = await book3dBridge.saveFileDialog(defaultName, fmt);
   if (!result || result.canceled) {
     // 浏览器直接下载
     downloadDataURL(dataURL, defaultName);
@@ -1545,7 +1707,7 @@ async function exportSingle() {
     return;
   }
 
-  const ok = await window.electronAPI?.saveImageFile(result.filePath, dataURL);
+  const ok = await book3dBridge.saveImageFile(result.filePath, dataURL);
   if (ok) {
     setStatus('ready', `✅ 已保存：${result.filePath.split('\\').pop()}`);
     showToast('导出成功！', 'success');
@@ -1558,8 +1720,8 @@ async function exportAll() {
   const fmt = document.getElementById('export-format').value;
   const size = parseInt(document.getElementById('export-size').value);
   let outputFolder = null;
-  if (window.electronAPI?.selectOutputFolder) {
-    const folderResult = await window.electronAPI.selectOutputFolder();
+  if (window.electronAPI?.selectOutputFolder || window.__TAURI__?.dialog?.open) {
+    const folderResult = await book3dBridge.selectOutputFolder();
     if (!folderResult || folderResult.canceled || !folderResult.filePaths?.length) {
       setStatus('ready', '已取消批量导出');
       return;
@@ -1587,8 +1749,8 @@ async function exportAll() {
     const ext = fmt === 'jpg' ? 'jpg' : 'png';
     const fileName = `书模_${a.suffix}.${ext}`;
 
-    if (window.electronAPI?.saveImageFile && outputFolder) {
-      await window.electronAPI.saveImageFile(outputFolder + '\\' + fileName, dataURL);
+    if (outputFolder) {
+      await book3dBridge.saveImageFile(outputFolder + '\\' + fileName, dataURL);
     } else {
       downloadDataURL(dataURL, fileName);
     }

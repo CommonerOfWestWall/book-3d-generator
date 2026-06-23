@@ -1,0 +1,14 @@
+[package]
+name = "book-3d-app"
+version = "1.0.0"
+description = "立体书样机生成器"
+authors = ["Book3D Team"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+base64 = "0.22"
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
