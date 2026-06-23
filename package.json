@@ -6,15 +6,21 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win dir --x64",
-    "pack": "electron-builder --win dir --x64"
+    "pack": "electron-builder --win dir --x64",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "author": "Book3D Team",
   "license": "MIT",
   "devDependencies": {
+    "@tauri-apps/cli": "^2.11.3",
     "electron": "^33.0.0",
     "electron-builder": "^25.1.8"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-dialog": "^2.7.1",
     "three": "^0.171.0"
   },
   "build": {
