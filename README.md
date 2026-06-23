@@ -151,11 +151,12 @@ Tauri 产物在 `src-tauri/target/release/` 和 `src-tauri/target/release/bundle
 
 ### Overview
 
-A lightweight Windows desktop application built with **Electron + Three.js** that renders book cover images into photorealistic **3D book mockups** — no internet required, no installation needed.
+A lightweight Windows desktop application built with **Electron / Tauri 2 + Three.js** that renders book cover images into photorealistic **3D book mockups** — no internet required, no installation needed.
 
 ### Features
 
 - 📐 Support for flat-spread cover images (front cover + spine + back cover)
+- ✂️ Optional flap cropping for cover spreads that include front/back flaps
 - 📏 Precise control: spine width, cover thickness, page depth
 - 🔄 Three open modes: flat / half-open / fully open
 - 🎨 Background modes: transparent / white / gradient
@@ -175,12 +176,46 @@ npm install
 npm start
 ```
 
-### Build exe
+### Cover Image Format
+
+The app accepts one horizontal flat-spread image:
+
+```text
+[front cover] [spine] [back cover]
+```
+
+If your spread includes book flaps on both outer edges, enable **Crop outer flaps** in the spine selection dialog. Drag the blue crop handles so they wrap only the real back cover, spine, and front cover. The areas outside the blue handles will be removed before rendering the 3D book.
+
+Supported image formats: `jpg / jpeg / png / tif / tiff / webp / bmp`
+
+### Build Electron exe
 
 ```bash
 npm install --save-dev electron-builder
 npm run build
 ```
+
+Electron output is written to `dist_portable/`.
+
+### Build Tauri 2 lightweight app
+
+Rust and Windows WebView2 are required.
+
+```bash
+npm install
+npm run tauri:build
+```
+
+Tauri output is written to `src-tauri/target/release/` and `src-tauri/target/release/bundle/`.
+
+### Tech Stack
+
+| Layer | Technology |
+|------|------|
+| Desktop shell | Electron 33 / Tauri 2 |
+| 3D rendering | Three.js 0.171 |
+| Build tools | electron-builder / Tauri CLI |
+| License | MIT |
 
 ### License
 
