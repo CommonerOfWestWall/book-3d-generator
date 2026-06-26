@@ -910,18 +910,33 @@ function makeFaceMaterials(faceIndex, faceMat, edgeMat) {
   return [0, 1, 2, 3, 4, 5].map(i => i === faceIndex ? faceMat : edgeMat);
 }
 
-function makeTexMat(dataURL) {
+function configureImageTexture(tex, preserveDetail = false) {
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.magFilter = THREE.LinearFilter;
+  if (preserveDetail) {
+    tex.minFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false;
+  }
+  const maxAnisotropy = renderer?.capabilities?.getMaxAnisotropy?.() || 1;
+  tex.anisotropy = Math.min(16, maxAnisotropy);
+}
+
+function makeTexMat(dataURL, options = {}) {
   const tex = new THREE.Texture();
   const img = new Image();
   img.crossOrigin = 'anonymous';
-  img.onload = () => { tex.image = img; tex.needsUpdate = true; };
+  img.onload = () => {
+    tex.image = img;
+    configureImageTexture(tex, !!options.preserveDetail);
+    tex.needsUpdate = true;
+  };
   img.src = dataURL;
-  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  configureImageTexture(tex, !!options.preserveDetail);
   return new THREE.MeshBasicMaterial({ map: tex });
 }
 
-function makeDoubleTexMat(dataURL) {
-  const mat = makeTexMat(dataURL);
+function makeDoubleTexMat(dataURL, options = {}) {
+  const mat = makeTexMat(dataURL, options);
   mat.side = THREE.DoubleSide;
   return mat;
 }
@@ -1034,7 +1049,7 @@ function addPaperbackCore(group, W, H, D) {
 
   // 书脊
   if (images.spine) {
-    const spineMat = makeDoubleTexMat(images.spine);
+    const spineMat = makeDoubleTexMat(images.spine, { preserveDetail: true });
     const spineGeo = new THREE.PlaneGeometry(pageBlockW, H);
     const spineMesh = new THREE.Mesh(spineGeo, spineMat);
     spineMesh.position.set(-W / 2, 0, 0);
@@ -1085,7 +1100,7 @@ function addHardcover(group, W, H, D) {
   const hingeMat = makeTransparentMat(hingeColor, 0.06);
   const frontMat = images.cover ? makeTexMat(images.cover) : makeFlatMat(0x1a237e);
   const backMat = images.back ? makeTexMat(images.back) : makeFlatMat(0x37474f);
-  const spineMat = images.spine ? makeTexMat(images.spine) : makeFlatMat(0x1a365d);
+  const spineFallbackMat = makeFlatMat(0x1a365d);
 
   // 书芯内缩，硬壳略大但不夸张。
   const pageInsetX = overhang * 0.7;
@@ -1129,7 +1144,7 @@ function addHardcover(group, W, H, D) {
 
   // 书脊使用独立贴面，不再用盒体插入封面接缝，避免侧边厚度面穿模。
   const spineGeo = new THREE.PlaneGeometry(pageDepth + boardThick * 2, coverH);
-  const spine = new THREE.Mesh(spineGeo, images.spine ? makeDoubleTexMat(images.spine) : spineMat);
+  const spine = new THREE.Mesh(spineGeo, images.spine ? makeDoubleTexMat(images.spine, { preserveDetail: true }) : spineFallbackMat);
   spine.position.set(coverCenterX - coverW / 2, 0, 0);
   spine.rotation.y = -Math.PI / 2;
   group.add(spine);

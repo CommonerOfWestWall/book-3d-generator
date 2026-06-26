@@ -1,6 +1,6 @@
 {
   "name": "book-3d-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "立体书样机生成器 - 一键生成3D书籍效果图",
   "main": "main.js",
   "scripts": {
