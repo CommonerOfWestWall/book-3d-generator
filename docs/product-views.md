@@ -1,6 +1,6 @@
 # 商品视角与自定义设置 / Product Views and Saved Settings
 
-当前为基于 1.1.0 的本地预览构建，未发布到 GitHub。 This is a local preview based on 1.1.0, not a GitHub release.
+本文记录稳定版 `1.2.0` 的内置视角与本地保存行为；发布状态和下载资产以 [GitHub v1.2.0 发布页](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.2.0)为准。 This document describes the stable `1.2.0` built-in views and local persistence; release status and assets are tracked on the [GitHub v1.2.0 release page](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.2.0).
 
 ## 抽样参考 / Qualitative References
 检查日期 / Inspected: 2026-10-10.
@@ -55,6 +55,6 @@ Custom views preserve exact values without automatic rescaling to another cover.
 Corrupt storage is retained with writes disabled, never cleared automatically. Failed writes such as quota or permission errors are reported without replacing previous settings.
 
 ## 验证 / Verification
-- 15 项 Node 单测通过；浏览器验证平装和精装共 12 个预设输出的非空像素与不裁边、三种导出分辨率、桌面与移动布局，以及保存/重命名/更新/删除、存储异常和混合批量导出。 15 Node tests pass; browser tests cover 12 paperback/hardcover preset outputs with nonblank pixels and framing bounds, three export resolutions, responsive layouts, saved-view CRUD, storage errors and mixed batch export.
-- Tauri 可执行文件与 NSIS 安装包构建通过。隔离 WebView2 测试确认完整关闭再启动后设置保留，自定义批量 PNG 与同角度单张 PNG 字节完全相同；实际保存使用 Rust 文件接口。 Tauri/NSIS builds pass. An isolated WebView2 test verifies persistence after full process restart and byte-identical single/custom-batch PNGs saved through the real Rust file API.
-- 没有重新验证安装包的安装过程或 Electron 打包；系统文件夹对话框的取消路径以模拟结果测试。 Installer installation and Electron packaging were not re-tested; native folder-dialog cancellation was tested with mocked results.
+- 17 项 Node 单测通过；浏览器验证平装和精装共 12 个预设输出的非空像素与不裁边、三种导出分辨率、桌面与移动布局，以及保存/重命名/更新/删除、存储异常和混合批量导出。 17 Node tests pass; browser tests cover 12 paperback/hardcover preset outputs with nonblank pixels and framing bounds, three export resolutions, responsive layouts, saved-view CRUD, storage errors and mixed batch export.
+- Tauri EXE 和 NSIS 安装包构建通过，文件版本均为 1.2.0。隔离 WebView2 测试确认完整退出再启动后设置保留，自定义批量 PNG 与同角度单张 PNG 字节相同；实际保存使用 Rust 文件接口。 Tauri and NSIS builds pass with file version 1.2.0. Isolated WebView2 tests verify persistence after full process restart and byte-identical single/custom-batch PNGs saved through the real Rust file API.
+- 未重新验证安装向导、缺失 WebView2 时的下载过程或 Electron 打包；原生文件夹对话框取消路径采用模拟结果测试。 Installer wizard, missing-runtime download and Electron packaging were not re-tested; native folder-dialog cancellation uses mocked results.
