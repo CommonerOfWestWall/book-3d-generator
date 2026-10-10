@@ -517,73 +517,65 @@ select:focus { outline: none; border-color: var(--accent); }
   justify-content: flex-end;
 }
 </style>
+<link rel="stylesheet" href="ui.css">
 </head>
 <body>
 
 <!-- 左侧面板 -->
 <div id="left-panel">
+  <header class="app-header"><span class="brand-mark" data-icon="BookOpen"></span><div><h1>立体书样机</h1><span class="brand-subtitle">BOOK 3D STUDIO</span></div></header>
+  <nav class="workflow-tabs" aria-label="工作流程">
+    <button class="step-tab active" data-step="cover" aria-pressed="true">封面</button>
+    <button class="step-tab" data-step="structure" aria-pressed="false">书型</button>
+    <button class="step-tab" data-step="view" aria-pressed="false">视角</button>
+    <button class="step-tab" data-step="export" aria-pressed="false">导出</button>
+  </nav>
   <!-- 上传 -->
-  <div class="panel-section">
-    <div class="panel-title">📤 封面图片</div>
-    <div id="upload-zone">
+  <div class="panel-section" data-step="cover">
+    <div class="panel-title">封面展开图</div>
+    <div id="upload-zone" role="button" tabindex="0" aria-label="导入封面展开图">
       <input type="file" id="file-input" accept="image/*">
-      <div class="upload-icon">🖼️</div>
-      <div class="upload-text">点击或拖拽上传封面展开图</div>
+      <div class="upload-icon" data-icon="ImagePlus"></div>
+      <div class="upload-text">导入封面展开图</div>
       <div id="upload-thumb-wrap"></div>
     </div>
+    <div id="image-meta">未导入图片</div>
     <button class="btn btn-secondary btn-full" id="test-btn" style="margin-top: 12px;">
-      🎨 测试封面演示
+      <span data-icon="FlaskConical"></span>示例封面
     </button>
   </div>
 
   <!-- 书脊设置 -->
-  <div class="panel-section" id="spine-section" style="display: none;">
-    <div class="panel-title">📐 书脊/厚度设置</div>
-    <label class="option-row">
-      <input type="checkbox" id="flap-crop-toggle">
-      <span>裁切两端勒口</span>
-    </label>
-    <div class="slider-group">
-      <div class="slider-label">
-        <span>书脊左边线</span>
-        <span class="slider-value" id="spine-left-val">44%</span>
-      </div>
-      <input type="range" id="spine-left-slider" min="0" max="100" value="44" step="0.1">
-    </div>
-    <div class="slider-group">
-      <div class="slider-label">
-        <span>书脊右边线</span>
-        <span class="slider-value" id="spine-right-val">56%</span>
-      </div>
-      <input type="range" id="spine-right-slider" min="0" max="100" value="56" step="0.1">
-    </div>
-    <div style="font-size: 12px; color: var(--text-dim); line-height: 1.6; margin: -4px 0 12px;">
-      两条红线夹住的区域就是书脊；勾选裁切勒口后，弹窗里的蓝线外侧会被去除。
-    </div>
-    <button class="btn btn-primary btn-full" id="confirm-spine-btn">
-      ✅ 确认书脊并渲染
-    </button>
+  <div class="panel-section" data-step="cover" id="spine-section" style="display: none;">
+    <div class="panel-title">封面裁切</div>
+    <dl class="book-measurements"><div><dt>书脊边界</dt><dd id="spine-range-meta">—</dd></div><div><dt>勒口裁切</dt><dd id="crop-meta">—</dd></div></dl>
+    <button class="btn btn-secondary btn-full" id="edit-crop-btn"><span data-icon="Crop"></span>重新裁切</button>
   </div>
 
   <!-- 书籍类型 -->
-  <div class="panel-section">
-    <div class="panel-title">📚 书籍类型</div>
+  <div class="panel-section" data-step="structure" hidden>
+    <div class="panel-title">装订方式</div>
     <div class="type-grid">
       <button class="type-btn active" data-type="paperback">
-        📖 平装本
+        平装
       </button>
       <button class="type-btn" data-type="hardcover">
-        📕 精装书
+        精装
       </button>
     </div>
     <div id="type-label" style="text-align: center; margin-top: 8px; color: var(--accent); font-size: 13px;">
       平装本
     </div>
+    <div id="hardcover-controls" hidden>
+      <div class="slider-group"><label class="slider-label" for="board-input">封板厚度 / 封面宽度 <span id="board-val">1.2%</span></label><div class="control-row"><input id="board-slider" type="range" min="0.4" max="2.5" step="0.1" value="1.2" aria-label="封板厚度"><input id="board-input" class="num-input" type="number" min="0.4" max="2.5" step="0.1" value="1.2" aria-label="封板厚度百分比"></div></div>
+      <div class="slider-group"><label class="slider-label" for="overhang-input">出飘 / 封面宽度 <span id="overhang-val">1.8%</span></label><div class="control-row"><input id="overhang-slider" type="range" min="0.5" max="4" step="0.1" value="1.8" aria-label="封板出飘"><input id="overhang-input" class="num-input" type="number" min="0.5" max="4" step="0.1" value="1.8" aria-label="封板出飘百分比"></div></div>
+    </div>
+    <dl class="book-measurements"><div><dt>封面宽高比</dt><dd id="aspect-meta">—</dd></div><div><dt>书厚 / 封面宽度</dt><dd id="depth-meta">—</dd></div><div id="board-effective-row" hidden><dt>实际封板厚度</dt><dd id="board-effective">—</dd></div></dl>
   </div>
 
   <!-- 角度显示 -->
-  <div class="panel-section">
-    <div class="panel-title">🔄 旋转角度</div>
+  <div class="panel-section" data-step="view" hidden>
+    <div class="panel-title">旋转与镜头</div>
     <div class="angle-display">
       <div class="angle-item">
         <div class="angle-item-label">X轴旋转</div>
@@ -632,7 +624,7 @@ select:focus { outline: none; border-color: var(--accent); }
     </div>
     <div class="slider-group">
       <div class="slider-label">
-        <span>镜头距离 (8 ~ 24)</span>
+        <span>镜头距离</span>
         <span class="slider-value" id="zoom-val">11.5</span>
       </div>
       <div class="control-row">
@@ -642,7 +634,7 @@ select:focus { outline: none; border-color: var(--accent); }
     </div>
     <div class="slider-group">
       <div class="slider-label">
-        <span>镜头高度 (-6 ~ 6)</span>
+        <span>镜头高度</span>
         <span class="slider-value" id="height-val">0</span>
       </div>
       <div class="control-row">
@@ -653,27 +645,35 @@ select:focus { outline: none; border-color: var(--accent); }
   </div>
 
   <!-- 预设角度 -->
-  <div class="panel-section">
-    <div class="panel-title">⭐ 预设视角</div>
+  <div class="panel-section" data-step="view" hidden>
+    <div class="panel-title">预设视角</div>
     <div class="preset-grid">
-      <button class="preset-btn active" data-az="0" data-el="35" data-z="0" data-zoom="11.5" data-height="0">
-        主图微侧
-      </button>
-      <button class="preset-btn" data-az="0" data-el="28" data-z="0" data-zoom="12.5" data-height="1.2">
-        轻俯主图
-      </button>
-      <button class="preset-btn" data-az="0" data-el="58" data-z="0" data-zoom="12" data-height="0">
-        书脊款
-      </button>
-      <button class="preset-btn" data-az="0" data-el="22" data-z="0" data-zoom="12.5" data-height="-1.1">
-        轻仰视
-      </button>
+      <button class="preset-btn" data-id="front" data-az="0" data-el="0" data-z="0" data-zoom="11.5" data-height="0">封面正视</button>
+      <button class="preset-btn active" data-id="front-spine" data-az="0" data-el="25" data-z="0" data-zoom="11.5" data-height="0">封面微侧</button>
+      <button class="preset-btn" data-id="front-edge" data-az="0" data-el="-25" data-z="0" data-zoom="11.5" data-height="0">书口微侧</button>
+      <button class="preset-btn" data-id="back" data-az="0" data-el="180" data-z="0" data-zoom="11.5" data-height="0">封底正视</button>
+      <button class="preset-btn" data-id="back-spine" data-az="0" data-el="155" data-z="0" data-zoom="11.5" data-height="0">封底微侧</button>
+      <button class="preset-btn" data-id="oblique" data-az="-48" data-el="-20" data-z="-20" data-zoom="12" data-height="0">斜俯展示</button>
     </div>
   </div>
 
+  <div class="panel-section" data-step="view" hidden>
+    <div class="panel-title">我的视角</div>
+    <form id="view-save-form" class="view-save-form">
+      <label for="view-name">视角名称</label>
+      <div class="view-save-row">
+        <input id="view-name" type="text" placeholder="未命名视角" autocomplete="off">
+        <button type="submit" class="btn btn-primary icon-btn" id="save-view-btn" title="保存当前视角" aria-label="保存当前视角"><span data-icon="Save"></span></button>
+        <button type="button" class="btn btn-secondary icon-btn" id="cancel-view-edit" hidden title="取消重命名" aria-label="取消重命名"><span data-icon="X"></span></button>
+      </div>
+    </form>
+    <div id="view-storage-error" role="alert" hidden></div>
+    <div id="saved-view-list"></div>
+  </div>
+
   <!-- 背景 -->
-  <div class="panel-section">
-    <div class="panel-title">🎨 背景</div>
+  <div class="panel-section" data-step="export" hidden>
+    <div class="panel-title">背景</div>
     <div class="bg-grid">
       <button class="bg-btn active" data-bg="transparent">透明</button>
       <button class="bg-btn" data-bg="white">白色</button>
@@ -681,11 +681,11 @@ select:focus { outline: none; border-color: var(--accent); }
   </div>
 
   <!-- 导出 -->
-  <div class="panel-section">
-    <div class="panel-title">💾 导出</div>
+  <div class="panel-section" data-step="export" hidden>
+    <div class="panel-title">导出图片</div>
     <div class="export-grid">
       <select id="export-format">
-        <option value="png">PNG (透明)</option>
+        <option value="png">PNG</option>
         <option value="jpg">JPG (白色背景)</option>
       </select>
       <select id="export-size">
@@ -695,25 +695,35 @@ select:focus { outline: none; border-color: var(--accent); }
       </select>
     </div>
     <button class="btn btn-primary btn-full" id="export-single-btn" disabled>
-      📷 导出当前角度
+      <span data-icon="Download"></span>导出当前角度
     </button>
+    <div class="panel-title batch-title">批量视角 <span id="batch-count">4</span></div>
+    <div class="batch-modes" role="group" aria-label="批量视角组合">
+      <button class="btn btn-secondary" type="button" data-batch="common">常用四张</button>
+      <button class="btn btn-secondary" type="button" data-batch="recommended">推荐六张</button>
+      <button class="btn btn-secondary" type="button" data-batch="custom">我的视角</button>
+    </div>
+    <div id="batch-view-list"></div>
     <button class="btn btn-secondary btn-full" id="export-all-btn" disabled style="margin-top: 8px;">
-      📦 导出4个常用角度
+      <span data-icon="Files"></span><span id="batch-export-label">导出选中视角（4）</span>
     </button>
   </div>
 
   <!-- 状态栏 -->
   <div id="status-bar">
     <div class="status-dot" id="status-dot"></div>
-    <span id="status-text">📤 请上传展开封面图，或点击"测试封面演示"</span>
+    <span id="status-text" role="status">等待封面</span>
   </div>
 </div>
 
 <!-- 主视图 -->
 <div id="main-view">
+  <div class="preview-header"><span id="preview-title">平装 · 未导入封面</span><span class="preview-badge">1 : 1</span></div>
   <div id="canvas-container"></div>
   <div id="toolbar">
-    <button class="btn btn-secondary" id="reset-btn">🔄 重置视角</button>
+    <button class="btn btn-secondary icon-btn" id="reset-btn" title="重置视角" aria-label="重置视角"><span data-icon="RotateCcw"></span></button>
+    <button class="btn btn-secondary icon-btn" id="fit-btn" title="适配画面" aria-label="适配画面"><span data-icon="Maximize"></span></button>
+    <button class="btn btn-primary" id="quick-export-btn" disabled><span data-icon="Download"></span>导出</button>
   </div>
 </div>
 
@@ -721,11 +731,11 @@ select:focus { outline: none; border-color: var(--accent); }
 <div id="toast"></div>
 
 <!-- 书脊选择弹窗 -->
-<div id="spine-modal">
+<div id="spine-modal" role="dialog" aria-modal="true" aria-labelledby="crop-title">
   <div class="spine-modal-content">
     <div class="spine-modal-header">
-      <h3 class="spine-modal-title">📐 选择书脊区域（决定书厚）</h3>
-      <span style="color: var(--text-dim); font-size: 13px;">红线夹住书脊；开启勒口裁切后，蓝线外侧会去除</span>
+      <h3 class="spine-modal-title" id="crop-title">封面裁切</h3>
+      <button id="crop-close-btn" class="btn btn-secondary icon-btn" title="取消裁切" aria-label="取消裁切"><span data-icon="X"></span></button>
     </div>
     <label class="option-row">
       <input type="checkbox" id="modal-flap-crop-toggle">
@@ -735,11 +745,17 @@ select:focus { outline: none; border-color: var(--accent); }
       <div id="crop-fill-left"></div>
       <div id="crop-fill-right"></div>
       <div id="spine-fill"></div>
-      <div id="crop-line-left"></div>
-      <div id="crop-line-right"></div>
-      <div id="spine-line-left"></div>
-      <div id="spine-line-right"></div>
+      <div id="crop-line-left" title="封底外边界"></div>
+      <div id="crop-line-right" title="封面外边界"></div>
+      <div id="spine-line-left" title="书脊左边界"></div>
+      <div id="spine-line-right" title="书脊右边界"></div>
       <img id="spine-preview-img" alt="封面预览">
+    </div>
+    <div class="crop-fields">
+      <label class="flap-field">封底外边界 %<input type="number" id="crop-left-input" min="0" max="100" step="0.1"></label>
+      <label>书脊左边界 %<input type="number" id="crop-spine-left-input" min="0" max="100" step="0.1"></label>
+      <label>书脊右边界 %<input type="number" id="crop-spine-right-input" min="0" max="100" step="0.1"></label>
+      <label class="flap-field">封面外边界 %<input type="number" id="crop-right-input" min="0" max="100" step="0.1"></label>
     </div>
     <div style="margin-top: 12px; font-size: 13px; color: var(--text-dim);">
       书脊宽度/书厚参考: <span id="spine-width-display" style="color: var(--accent);">12%</span>
@@ -747,12 +763,15 @@ select:focus { outline: none; border-color: var(--accent); }
     </div>
     <div class="spine-modal-footer">
       <button class="btn btn-secondary" id="spine-cancel-btn">取消</button>
-      <button class="btn btn-primary" id="spine-confirm-btn">确认</button>
+      <button class="btn btn-primary" id="spine-confirm-btn">应用裁切</button>
     </div>
   </div>
 </div>
 
 <script src="three.min.js"></script>
+<script src="icons.js"></script>
+<script src="book-model.js"></script>
+<script src="view-presets.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
 // 状态
@@ -762,15 +781,28 @@ let fullImageData = null;
 let images = { cover: null, spine: null, back: null };
 let bookType = 'paperback';
 let bgType = 'transparent';
-let rotX = 0, rotY = 35, rotZ = 0, cameraDistance = 11.5, cameraHeight = 0;
+let rotX = 0, rotY = 25, rotZ = 0, cameraDistance = 11.5, cameraHeight = 0;
 let spineLeft = 44, spineRight = 56;
 let flapCropEnabled = false;
 let cropLeft = 0, cropRight = 100;
 let isRendering = false;
 let loadedPreset = false;
+const viewStorageKey = 'book3d.camera-presets.v1';
+let savedViews = [], selectedViewIds = [], renamingViewId = null;
+let viewStorageBlocked = false;
 let bookSize = { w: 4.0, h: 5.66, d: 0.52 };
 let coverEdgeColor = 0x22201b;
 let hingeColor = 0x34302b;
+let hardcoverOptions = { boardPercent: 1.2, overhangPercent: 1.8 };
+let textureLoads = [];
+let renderRevision = 0;
+let exportBusy = false;
+let exportDisabledStates = new Map();
+let cropSnapshot = null;
+let pendingImageData = null;
+let imageName = '', pendingImageName = '';
+let focusBeforeCrop = null;
+let fileRevision = 0;
 
 let scene, camera, renderer, bookGroup;
 let canvas, canvasWidth, canvasHeight;
@@ -843,7 +875,8 @@ function initThree() {
     preserveDrawingBuffer: true
   });
   renderer.setSize(canvasWidth, canvasHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
   container.appendChild(renderer.domElement);
 
@@ -862,14 +895,7 @@ function initThree() {
 
   // 窗口大小变化
   window.addEventListener('resize', onResize);
-
-  // 渲染循环
-  animate();
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
+  new ResizeObserver(onResize).observe(container);
 }
 
 function onResize() {
@@ -879,6 +905,7 @@ function onResize() {
   camera.aspect = canvasWidth / canvasHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(canvasWidth, canvasHeight);
+  renderer.render(scene, camera);
 }
 
 function updateCamera() {
@@ -903,7 +930,7 @@ function updateCamera() {
 // 材质工厂 (无光照 MeshBasicMaterial)
 // ══════════════════════════════════════════════════════════════
 function makeFlatMat(color) {
-  return new THREE.MeshBasicMaterial({ color: color });
+  return new THREE.MeshBasicMaterial({ color: new THREE.Color(color).convertSRGBToLinear() });
 }
 
 function makeFaceMaterials(faceIndex, faceMat, edgeMat) {
@@ -911,6 +938,7 @@ function makeFaceMaterials(faceIndex, faceMat, edgeMat) {
 }
 
 function configureImageTexture(tex, preserveDetail = false) {
+  tex.encoding = THREE.sRGBEncoding;
   tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
   tex.magFilter = THREE.LinearFilter;
   if (preserveDetail) {
@@ -924,12 +952,21 @@ function configureImageTexture(tex, preserveDetail = false) {
 function makeTexMat(dataURL, options = {}) {
   const tex = new THREE.Texture();
   const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = () => {
-    tex.image = img;
-    configureImageTexture(tex, !!options.preserveDetail);
-    tex.needsUpdate = true;
-  };
+  const revision = renderRevision;
+  const ready = new Promise((resolve, reject) => {
+    img.onload = () => {
+      if (revision === renderRevision) {
+        tex.image = img;
+        configureImageTexture(tex, !!options.preserveDetail);
+        tex.needsUpdate = true;
+        renderer.render(scene, camera);
+      }
+      resolve();
+    };
+    img.onerror = () => reject(new Error('封面贴图加载失败'));
+  });
+  ready.catch(() => {});
+  textureLoads.push(ready);
   img.src = dataURL;
   configureImageTexture(tex, !!options.preserveDetail);
   return new THREE.MeshBasicMaterial({ map: tex });
@@ -966,8 +1003,7 @@ function darkenHex(hex, factor = 0.72) {
   return rgbToHex(r, g, b);
 }
 
-function sampleRegionEdgeColor(x, y, width, height) {
-  const img = document.getElementById('spine-preview-img');
+function sampleRegionEdgeColor(x, y, width, height, img = document.getElementById('spine-preview-img')) {
   const c = document.createElement('canvas');
   c.width = width; c.height = height;
   const ctx = c.getContext('2d', { willReadFrequently: true });
@@ -1008,6 +1044,7 @@ function makePageTex(w, h) {
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
   }
   const tex = new THREE.CanvasTexture(c);
+  configureImageTexture(tex);
   return tex;
 }
 
@@ -1023,6 +1060,7 @@ function makePageTexH(w, h) {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
   }
   const tex = new THREE.CanvasTexture(c);
+  configureImageTexture(tex);
   return tex;
 }
 
@@ -1089,73 +1127,29 @@ function addPaperbackCore(group, W, H, D) {
 // 精装书
 // ══════════════════════════════════════════════════════════════
 function addHardcover(group, W, H, D) {
-  const pageDepth = D * 0.78;
-  const boardThick = Math.max(0.055, D * 0.12);
-  const overhang = Math.min(W, H) * 0.018;
-  const jointGap = 0.002;
-  const spineStripW = Math.max(boardThick * 1.45, W * 0.035);
-  const coverW = W + overhang * 2 - spineStripW - jointGap;
-  const coverH = H + overhang * 2;
-  const coverEdgeMat = makeTransparentMat(darkenHex(coverEdgeColor, 0.72), 0.10);
-  const hingeMat = makeTransparentMat(hingeColor, 0.06);
-  const frontMat = images.cover ? makeTexMat(images.cover) : makeFlatMat(0x1a237e);
-  const backMat = images.back ? makeTexMat(images.back) : makeFlatMat(0x37474f);
-  const spineFallbackMat = makeFlatMat(0x1a365d);
-
-  // 书芯内缩，硬壳略大但不夸张。
-  const pageInsetX = overhang * 0.7;
-  const pageInsetY = overhang * 0.8;
-  const pageW = W - pageInsetX * 2 - spineStripW * 0.45;
-  const pageH = H - pageInsetY * 2;
-  const coverCenterX = spineStripW * 0.5 + jointGap * 0.5;
-  const pageCenterX = coverCenterX + pageInsetX * 0.35;
-
-  // 书页块
-  const topTex = makePageTexH(Math.max(8, Math.floor(pageW * 36)), Math.max(8, Math.floor(pageDepth * 42)));
-  const topMat = makeDoublePageMat(topTex);
-  const topGeo = new THREE.PlaneGeometry(pageW, pageDepth);
-  const topMesh = new THREE.Mesh(topGeo, topMat);
-  topMesh.position.set(pageCenterX, pageH / 2, 0);
-  topMesh.rotation.x = -Math.PI / 2;
-  group.add(topMesh);
-
-  const botMesh = new THREE.Mesh(topGeo.clone(), topMat);
-  botMesh.position.set(pageCenterX, -pageH / 2, 0);
-  botMesh.rotation.x = Math.PI / 2;
-  group.add(botMesh);
-
-  const edgeTex = makePageTex(Math.max(8, Math.floor(pageDepth * 70)), Math.max(8, Math.floor(pageH * 34)));
-  const edgeMat = makeDoublePageMat(edgeTex);
-  const edgeGeo = new THREE.PlaneGeometry(pageDepth, pageH);
-  const edgeMesh = new THREE.Mesh(edgeGeo, edgeMat);
-  edgeMesh.position.set(coverCenterX + pageW / 2, 0, 0);
-  edgeMesh.rotation.y = -Math.PI / 2;
-  group.add(edgeMesh);
-
-  // 前后硬壳底板。贴图只贴正反大面，厚度边保持深色，避免图片爬边。
-  const frontBoardGeo = new THREE.BoxGeometry(coverW, coverH, boardThick);
-  const frontBoard = new THREE.Mesh(frontBoardGeo, makeFaceMaterials(4, frontMat, coverEdgeMat));
-  frontBoard.position.set(coverCenterX, 0, pageDepth / 2 + boardThick / 2);
-  group.add(frontBoard);
-
-  const backBoard = new THREE.Mesh(frontBoardGeo.clone(), makeFaceMaterials(5, backMat, coverEdgeMat));
-  backBoard.position.set(coverCenterX, 0, -pageDepth / 2 - boardThick / 2);
-  group.add(backBoard);
-
-  // 书脊使用独立贴面，不再用盒体插入封面接缝，避免侧边厚度面穿模。
-  const spineGeo = new THREE.PlaneGeometry(pageDepth + boardThick * 2, coverH);
-  const spine = new THREE.Mesh(spineGeo, images.spine ? makeDoubleTexMat(images.spine, { preserveDetail: true }) : spineFallbackMat);
-  spine.position.set(coverCenterX - coverW / 2, 0, 0);
-  spine.rotation.y = -Math.PI / 2;
-  group.add(spine);
+  const layout = BookModel.hardcoverLayout(W, H, D, hardcoverOptions);
+  const materials = {
+    front: images.cover ? makeTexMat(images.cover) : makeFlatMat(0x247c60),
+    back: images.back ? makeTexMat(images.back) : makeFlatMat(0x266350),
+    spine: images.spine ? makeTexMat(images.spine, { preserveDetail: true }) : makeFlatMat(0x245c49),
+    edge: makeFlatMat(coverEdgeColor), hinge: makeFlatMat(hingeColor),
+    pageSide: makeDoublePageMat(makePageTex(128, 512)),
+    pageTop: makeDoublePageMat(makePageTexH(512, 128)),
+    pageInner: makeFlatMat(0xe8e6df)
+  };
+  BookModel.buildHardcover(THREE, group, W, H, D, hardcoverOptions, materials);
+  document.getElementById('board-effective').textContent = (layout.boardThick / W * 100).toFixed(2) + '%';
 }
 
 // ══════════════════════════════════════════════════════════════
 // 构建书籍
 // ══════════════════════════════════════════════════════════════
 function buildBook() {
+  renderRevision++;
+  textureLoads = [];
   if (bookGroup) {
     scene.remove(bookGroup);
+    disposeBook(bookGroup);
     bookGroup = null;
   }
   bookGroup = new THREE.Group();
@@ -1174,16 +1168,56 @@ function buildBook() {
   // 背景
   updateCamera();
   updateBackground();
+  document.getElementById('preview-title').textContent = (bookType === 'hardcover' ? '精装' : '平装') + ' · ' + (imageName || '未导入封面');
+}
+
+function disposeBook(group) {
+  const geometries = new Set(), materials = new Set(), textures = new Set();
+  group.traverse(obj => {
+    if (obj.geometry) geometries.add(obj.geometry);
+    (Array.isArray(obj.material) ? obj.material : [obj.material]).filter(Boolean).forEach(mat => {
+      materials.add(mat);
+      if (mat.map) textures.add(mat.map);
+    });
+  });
+  textures.forEach(t => t.dispose());
+  materials.forEach(m => m.dispose());
+  geometries.forEach(g => g.dispose());
+}
+
+async function waitForTextures() {
+  let revision;
+  do {
+    revision = renderRevision;
+    await Promise.all(textureLoads);
+  } while (revision !== renderRevision);
+  renderer.render(scene, camera);
+}
+
+function selectStep(step) {
+  document.querySelectorAll('.panel-section[data-step]').forEach(el => el.hidden = el.dataset.step !== step);
+  document.querySelectorAll('.step-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.step === step);
+    el.setAttribute('aria-pressed', String(el.dataset.step === step));
+  });
+}
+
+function fitView() {
+  if (!bookGroup) return;
+  bookGroup.updateMatrixWorld(true);
+  const sphere = new THREE.Box3().setFromObject(bookGroup).getBoundingSphere(new THREE.Sphere());
+  setCameraValues({ zoom: sphere.radius / Math.sin(THREE.MathUtils.degToRad(17.5)) * 1.12, height: 0 });
 }
 
 // ══════════════════════════════════════════════════════════════
 // 背景更新
 // ══════════════════════════════════════════════════════════════
 function updateBackground() {
-  if (bgType === 'white') {
+  const previewBg = document.getElementById('export-format')?.value === 'jpg' ? 'white' : bgType;
+  if (previewBg === 'white') {
     scene.background = new THREE.Color(0xffffff);
     renderer.setClearColor(0xffffff, 1);
-  } else if (bgType === 'transparent') {
+  } else if (previewBg === 'transparent') {
     scene.background = null;
     renderer.setClearColor(0x000000, 0);
   } else {
@@ -1201,23 +1235,25 @@ let isDragging = false, lastX = 0, lastY = 0;
 function setupMouseControls() {
   const dom = renderer.domElement;
 
-  dom.addEventListener('mousedown', e => {
+  dom.addEventListener('pointerdown', e => {
+    if (exportBusy) return;
     if (e.button === 0) {
       isDragging = true;
       lastX = e.clientX;
       lastY = e.clientY;
       dom.style.cursor = 'grabbing';
+      dom.setPointerCapture(e.pointerId);
     }
   });
 
-  dom.addEventListener('mousemove', e => {
+  dom.addEventListener('pointermove', e => {
     if (!isDragging) return;
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
     rotY -= dx * 0.5;
     rotX += dy * 0.5;
     rotX = Math.max(-180, Math.min(180, rotX));
-    rotY = ((rotY + 180) % 360) - 180;
+    rotY = ((rotY + 180) % 360 + 360) % 360 - 180;
 
     // 更新滑块和显示
     updateCamera();
@@ -1225,22 +1261,24 @@ function setupMouseControls() {
     lastX = e.clientX;
     lastY = e.clientY;
     loadedPreset = false;
+    document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
   });
 
-  dom.addEventListener('mouseup', () => {
+  dom.addEventListener('pointerup', () => {
     isDragging = false;
     dom.style.cursor = 'grab';
   });
 
-  dom.addEventListener('mouseleave', () => {
+  dom.addEventListener('pointercancel', () => {
     isDragging = false;
     dom.style.cursor = 'grab';
   });
 
   dom.addEventListener('wheel', e => {
     e.preventDefault();
+    if (exportBusy) return;
     setCameraValues({ zoom: cameraDistance + e.deltaY * 0.015 });
-  });
+  }, { passive: false });
 
   dom.style.cursor = 'grab';
 }
@@ -1261,6 +1299,11 @@ function clampValue(value, min, max) {
 }
 
 function syncCameraControls() {
+  for (const suffix of ['slider', 'input']) {
+    document.getElementById('zoom-' + suffix).max = Math.max(24, bookSize.h * 4, bookSize.d * 4, cameraDistance);
+    document.getElementById('height-' + suffix).max = Math.max(6, bookSize.h, Math.abs(cameraHeight));
+    document.getElementById('height-' + suffix).min = -Math.max(6, bookSize.h, Math.abs(cameraHeight));
+  }
   const values = [
     ['az', rotX],
     ['el', rotY],
@@ -1284,13 +1327,15 @@ function syncCameraControls() {
   updateAngleDisplay();
 }
 
-function setCameraValues(values, keepPreset = false) {
+function setCameraValues(values, keepPreset = false, exactSavedView = false) {
   if (values.az !== undefined) rotX = clampValue(values.az, -180, 180);
   if (values.el !== undefined) rotY = clampValue(values.el, -180, 180);
   if (values.rotZ !== undefined) rotZ = clampValue(values.rotZ, -180, 180);
-  if (values.zoom !== undefined) cameraDistance = clampValue(values.zoom, 8, 24);
-  if (values.height !== undefined) cameraHeight = clampValue(values.height, -6, 6);
+  if (values.zoom !== undefined) cameraDistance = clampValue(values.zoom, 8, Math.max(24, bookSize.h * 4, bookSize.d * 4, cameraDistance, exactSavedView ? values.zoom : 0));
+  const heightLimit = Math.max(6, bookSize.h, Math.abs(cameraHeight), exactSavedView ? Math.abs(values.height) : 0);
+  if (values.height !== undefined) cameraHeight = clampValue(values.height, -heightLimit, heightLimit);
   loadedPreset = keepPreset;
+  if (!keepPreset) document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
   syncCameraControls();
   updateCamera();
 }
@@ -1299,11 +1344,15 @@ function setCameraValues(values, keepPreset = false) {
 // UI 事件绑定
 // ══════════════════════════════════════════════════════════════
 function initUI() {
+  document.querySelectorAll('.step-tab').forEach(btn => btn.addEventListener('click', () => selectStep(btn.dataset.step)));
   // 上传
   const uploadZone = document.getElementById('upload-zone');
   const fileInput = document.getElementById('file-input');
 
   uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
   uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
   uploadZone.addEventListener('drop', e => {
@@ -1314,64 +1363,43 @@ function initUI() {
 
   fileInput.addEventListener('change', e => {
     if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    fileInput.value = '';
   });
 
-  // 书脊滑块
-  const leftSlider = document.getElementById('spine-left-slider');
-  const rightSlider = document.getElementById('spine-right-slider');
-  const flapCropToggle = document.getElementById('flap-crop-toggle');
+  // 裁切编辑集中在弹窗中，确认后统一更新模型。
   const modalFlapCropToggle = document.getElementById('modal-flap-crop-toggle');
-
-  leftSlider.addEventListener('input', () => {
-    const minLeft = flapCropEnabled ? cropLeft + 1 : 0;
-    spineLeft = Math.max(minLeft, Math.min(parseFloat(leftSlider.value), spineRight - 1));
-    leftSlider.value = spineLeft;
-    document.getElementById('spine-left-val').textContent = spineLeft.toFixed(1) + '%';
-    updateSpineLines();
-  });
-
-  rightSlider.addEventListener('input', () => {
-    const maxRight = flapCropEnabled ? cropRight - 1 : 100;
-    spineRight = Math.min(maxRight, Math.max(parseFloat(rightSlider.value), spineLeft + 1));
-    rightSlider.value = spineRight;
-    document.getElementById('spine-right-val').textContent = spineRight.toFixed(1) + '%';
-    updateSpineLines();
-  });
 
   const onFlapToggle = checked => {
     flapCropEnabled = checked;
-    flapCropToggle.checked = checked;
     modalFlapCropToggle.checked = checked;
     ensureCropBounds();
     updateSpineLines();
   };
-  flapCropToggle.addEventListener('change', e => onFlapToggle(e.target.checked));
   modalFlapCropToggle.addEventListener('change', e => onFlapToggle(e.target.checked));
 
   // 确认书脊
-  document.getElementById('confirm-spine-btn').addEventListener('click', () => {
-    const img = new Image();
-    img.onload = () => {
-      splitCover(img);
+  document.getElementById('edit-crop-btn').addEventListener('click', () => showSpineModal(fullImageData, true));
+  [['board', 'boardPercent', 0.4, 2.5], ['overhang', 'overhangPercent', 0.5, 4]].forEach(([id, key, min, max]) => {
+    const apply = value => {
+      const v = clampValue(value, min, max);
+      hardcoverOptions[key] = v;
+      document.getElementById(id + '-input').value = v;
+      document.getElementById(id + '-slider').value = v;
+      document.getElementById(id + '-val').textContent = v.toFixed(1) + '%';
       updateScene();
-      setStatus('ready', '✅ 渲染完成！可拖动旋转、导出图片');
     };
-    img.src = fullImageData;
+    document.getElementById(id + '-slider').addEventListener('input', e => apply(e.target.value));
+    document.getElementById(id + '-input').addEventListener('change', e => apply(e.target.value));
   });
 
   // 旋转和镜头控制
   [
-    ['az', 'az', -180, 180],
-    ['el', 'el', -180, 180],
-    ['rotZ', 'rotZ', -180, 180],
-    ['zoom', 'zoom', 8, 24],
-    ['height', 'height', -6, 6],
-  ].forEach(([id, key, min, max]) => {
+    ['az', 'az'], ['el', 'el'], ['rotZ', 'rotZ'], ['zoom', 'zoom'], ['height', 'height'],
+  ].forEach(([id, key]) => {
     const slider = document.getElementById(id + '-slider');
     const input = document.getElementById(id + '-input');
     const apply = value => {
-      const v = clampValue(value, min, max);
-      setCameraValues({ [key]: v });
+      setCameraValues({ [key]: value });
     };
     slider.addEventListener('input', e => apply(e.target.value));
     input.addEventListener('change', e => apply(e.target.value));
@@ -1386,8 +1414,10 @@ function initUI() {
       document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       bookType = btn.dataset.type;
+      document.getElementById('hardcover-controls').hidden = bookType !== 'hardcover';
+      document.getElementById('board-effective-row').hidden = bookType !== 'hardcover';
       document.getElementById('type-label').textContent = bookType === 'hardcover' ? '精装书' : '平装本';
-      if (images.cover) updateScene();
+      updateScene();
     });
   });
 
@@ -1401,35 +1431,22 @@ function initUI() {
     });
   });
 
-  // 预设角度
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      rotX = parseFloat(btn.dataset.az);
-      rotY = parseFloat(btn.dataset.el);
-      rotZ = parseFloat(btn.dataset.z || 0);
-      cameraDistance = parseFloat(btn.dataset.zoom || cameraDistance);
-      cameraHeight = parseFloat(btn.dataset.height || cameraHeight);
-      loadedPreset = true;
-
-      syncCameraControls();
-      updateCamera();
-    });
-  });
+  setupViewPresets();
 
   // 重置视角
   document.getElementById('reset-btn').addEventListener('click', () => {
-    rotX = 0; rotY = 35; rotZ = 0; cameraDistance = 11.5; cameraHeight = 0;
-    syncCameraControls();
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.textContent.includes('主图微侧')));
-    updateCamera();
+    applyViewPreset(document.querySelector('.preset-btn[data-id="front-spine"]'));
   });
 
   // 导出
   document.getElementById('export-single-btn').addEventListener('click', exportSingle);
   document.getElementById('export-all-btn').addEventListener('click', exportAll);
+  document.getElementById('quick-export-btn').addEventListener('click', () => selectStep('export'));
+  document.getElementById('fit-btn').addEventListener('click', fitView);
+  document.getElementById('export-format').addEventListener('change', () => {
+    document.querySelectorAll('.bg-btn').forEach(btn => btn.disabled = document.getElementById('export-format').value === 'jpg');
+    updateBackground();
+  });
 
   // 测试图
   document.getElementById('test-btn').addEventListener('click', loadTestCover);
@@ -1437,8 +1454,17 @@ function initUI() {
   // 书脊弹窗
   setupSpineModal();
   document.getElementById('spine-confirm-btn').addEventListener('click', onSpineModalConfirm);
-  document.getElementById('spine-cancel-btn').addEventListener('click', () => {
-    document.getElementById('spine-modal').classList.remove('open');
+  document.getElementById('spine-cancel-btn').addEventListener('click', cancelCrop);
+  document.getElementById('crop-close-btn').addEventListener('click', cancelCrop);
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('spine-modal').classList.contains('open')) return;
+    if (e.key === 'Escape') { e.preventDefault(); cancelCrop(); }
+    if (e.key === 'Tab') {
+      const elements = [...document.querySelectorAll('#spine-modal button, #spine-modal input')].filter(el => !el.disabled && el.offsetParent !== null);
+      const first = elements[0], last = elements[elements.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
   });
 }
 
@@ -1469,16 +1495,32 @@ function updateSpineLines() {
   document.getElementById('flap-crop-display').style.display = flapCropEnabled ? 'inline' : 'none';
   document.getElementById('flap-crop-width-display').textContent =
     (cropLeft + (100 - cropRight)).toFixed(1) + '%';
+  document.getElementById('crop-left-input').value = cropLeft.toFixed(1);
+  document.getElementById('crop-right-input').value = cropRight.toFixed(1);
+  document.getElementById('crop-spine-left-input').value = spineLeft.toFixed(1);
+  document.getElementById('crop-spine-right-input').value = spineRight.toFixed(1);
+  document.querySelectorAll('.flap-field input').forEach(el => el.disabled = !flapCropEnabled);
+  syncCropControls();
 }
 
 function ensureCropBounds() {
-  if (!flapCropEnabled) {
-    cropLeft = 0;
-    cropRight = 100;
-    return;
-  }
-  cropLeft = Math.max(0, Math.min(spineLeft - 1, cropLeft));
-  cropRight = Math.min(100, Math.max(spineRight + 1, cropRight));
+  cropLeft = Math.max(0, Math.min(spineLeft - 0.1, cropLeft));
+  cropRight = Math.min(100, Math.max(spineRight + 0.1, cropRight));
+}
+
+function syncCropControls() {
+  document.getElementById('spine-range-meta').textContent = spineLeft.toFixed(1) + '% – ' + spineRight.toFixed(1) + '%';
+  document.getElementById('crop-meta').textContent = flapCropEnabled ? (cropLeft + 100 - cropRight).toFixed(1) + '%' : '未裁切';
+  document.getElementById('modal-flap-crop-toggle').checked = flapCropEnabled;
+}
+
+function moveCropBoundary(boundary, value) {
+  const pct = clampValue(value, 0, 100);
+  if (boundary === 'left') spineLeft = clampValue(pct, flapCropEnabled ? cropLeft + 0.1 : 0.1, spineRight - 0.1);
+  if (boundary === 'right') spineRight = clampValue(pct, spineLeft + 0.1, flapCropEnabled ? cropRight - 0.1 : 99.9);
+  if (boundary === 'crop-left') cropLeft = clampValue(pct, 0, spineLeft - 0.1);
+  if (boundary === 'crop-right') cropRight = clampValue(pct, spineRight + 0.1, 100);
+  updateSpineLines();
 }
 
 function setupSpineModal() {
@@ -1488,99 +1530,145 @@ function setupSpineModal() {
   const cropLineRight = document.getElementById('crop-line-right');
   const img = document.getElementById('spine-preview-img');
 
-  let dragging = null;
-
-  function onMove(e) {
-    if (!dragging) return;
-    const rect = img.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = (x / rect.width) * 100;
-    if (dragging === 'left') {
-      const minLeft = flapCropEnabled ? cropLeft + 1 : 0;
-      spineLeft = Math.max(minLeft, Math.min(spineRight - 1, pct));
-      document.getElementById('spine-left-slider').value = spineLeft;
-      document.getElementById('spine-left-val').textContent = spineLeft.toFixed(1) + '%';
-    } else if (dragging === 'right') {
-      const maxRight = flapCropEnabled ? cropRight - 1 : 100;
-      spineRight = Math.max(spineLeft + 1, Math.min(maxRight, pct));
-      document.getElementById('spine-right-slider').value = spineRight;
-      document.getElementById('spine-right-val').textContent = spineRight.toFixed(1) + '%';
-    } else if (dragging === 'crop-left') {
-      cropLeft = Math.max(0, Math.min(spineLeft - 1, pct));
-    } else if (dragging === 'crop-right') {
-      cropRight = Math.max(spineRight + 1, Math.min(100, pct));
-    }
-    updateSpineLines();
-  }
-
-  leftLine.addEventListener('mousedown', e => { dragging = 'left'; e.stopPropagation(); });
-  rightLine.addEventListener('mousedown', e => { dragging = 'right'; e.stopPropagation(); });
-  cropLineLeft.addEventListener('mousedown', e => {
-    if (!flapCropEnabled) return;
-    dragging = 'crop-left';
-    e.stopPropagation();
+  [[leftLine, 'left'], [rightLine, 'right'], [cropLineLeft, 'crop-left'], [cropLineRight, 'crop-right']].forEach(([line, boundary]) => {
+    let dragging = false;
+    line.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || (boundary.startsWith('crop-') && !flapCropEnabled)) return;
+      e.preventDefault();
+      dragging = true;
+      line.setPointerCapture(e.pointerId);
+    });
+    line.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const rect = img.getBoundingClientRect();
+      moveCropBoundary(boundary, (e.clientX - rect.left) / rect.width * 100);
+    });
+    line.addEventListener('pointerup', () => dragging = false);
+    line.addEventListener('pointercancel', () => dragging = false);
   });
-  cropLineRight.addEventListener('mousedown', e => {
-    if (!flapCropEnabled) return;
-    dragging = 'crop-right';
-    e.stopPropagation();
+  [['crop-left-input', 'crop-left'], ['crop-right-input', 'crop-right'], ['crop-spine-left-input', 'left'], ['crop-spine-right-input', 'right']].forEach(([id, boundary]) => {
+    document.getElementById(id).addEventListener('change', e => moveCropBoundary(boundary, e.target.value));
   });
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', () => dragging = null);
+  new ResizeObserver(updateSpineLines).observe(img);
 }
 
 // ══════════════════════════════════════════════════════════════
 // 文件处理
 // ══════════════════════════════════════════════════════════════
 async function handleFile(file) {
-  setStatus('busy', '⏳ 读取图片中...');
-  const reader = new FileReader();
-  reader.onload = e => {
-    fullImageData = e.target.result;
-    document.getElementById('upload-thumb-wrap').innerHTML =
-      `<img src="${fullImageData}" class="upload-thumb">`;
-    document.getElementById('upload-filename')?.remove();
-    showSpineModal(fullImageData);
-    setStatus('ready', '📐 请选择书脊区域');
-  };
-  reader.readAsDataURL(file);
+  const revision = ++fileRevision;
+  try {
+    if (exportBusy) return;
+    if (file.type && !file.type.startsWith('image/')) throw new Error('请选择图片文件');
+    setStatus('busy', '读取图片中…');
+    const data = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('无法读取图片'));
+      reader.readAsDataURL(file);
+    });
+    const img = await decodeImage(data);
+    if (revision !== fileRevision) return;
+    if (img.width < 30 || img.height < 30) throw new Error('图片尺寸太小');
+    pendingImageName = file.name;
+    showSpineModal(data);
+  } catch (err) { if (revision === fileRevision) reportError(err); }
 }
 
-function showSpineModal(imgData) {
+function showSpineModal(imgData, preserve = false) {
+  if (!imgData || exportBusy) return;
+  if (cropSnapshot) cancelCrop();
+  cropSnapshot = { spineLeft, spineRight, cropLeft, cropRight, flapCropEnabled };
+  pendingImageData = imgData;
+  if (preserve) pendingImageName = imageName;
+  focusBeforeCrop = document.activeElement;
   const img = document.getElementById('spine-preview-img');
-  img.onload = () => {
+  const ready = () => {
+    if (!preserve) {
     const spreadRatio = img.naturalWidth / img.naturalHeight;
     const spinePct = spreadRatio > 2.4 ? 6 : 8;
     spineLeft = (100 - spinePct) / 2;
     spineRight = (100 + spinePct) / 2;
     cropLeft = 0;
     cropRight = 100;
-    document.getElementById('spine-left-slider').value = spineLeft;
-    document.getElementById('spine-left-val').textContent = spineLeft.toFixed(1) + '%';
-    document.getElementById('spine-right-slider').value = spineRight;
-    document.getElementById('spine-right-val').textContent = spineRight.toFixed(1) + '%';
+    flapCropEnabled = false;
+    }
     updateSpineLines();
   };
+  img.onload = ready;
   img.src = imgData;
   document.getElementById('spine-modal').classList.add('open');
+  document.getElementById('spine-confirm-btn').disabled = false;
+  if (img.complete && img.naturalWidth) ready();
+  document.getElementById('modal-flap-crop-toggle').focus();
+  setStatus('ready', '封面裁切待确认');
 }
 
-function onSpineModalConfirm() {
+function closeCrop() {
   document.getElementById('spine-modal').classList.remove('open');
-  const img = new Image();
-  img.onload = () => {
-    splitCover(img);
+  pendingImageData = null;
+  cropSnapshot = null;
+  if (focusBeforeCrop?.isConnected) focusBeforeCrop.focus();
+}
+
+function cancelCrop() {
+  if (document.getElementById('spine-confirm-btn').disabled) return;
+  if (!cropSnapshot) return;
+  ({ spineLeft, spineRight, cropLeft, cropRight, flapCropEnabled } = cropSnapshot);
+  syncCropControls();
+  closeCrop();
+  document.getElementById('spine-preview-img').src = fullImageData || '';
+  setStatus('ready', images.cover ? '已保留原封面' : '等待封面');
+}
+
+function decodeImage(data) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('图片格式不支持或文件已损坏'));
+    img.src = data;
+  });
+}
+
+async function applyCover(data) {
+  const img = await decodeImage(data);
+  splitCover(img);
+  updateScene();
+  await waitForTextures();
+  document.getElementById('aspect-meta').textContent = (bookSize.w / bookSize.h).toFixed(3) + ' : 1';
+  document.getElementById('depth-meta').textContent = (bookSize.d / bookSize.w * 100).toFixed(1) + '%';
+  setStatus('ready', '预览已更新');
+}
+
+async function onSpineModalConfirm() {
+  if (!pendingImageData) return;
+  const btn = document.getElementById('spine-confirm-btn');
+  btn.disabled = true;
+  document.querySelectorAll('#spine-modal input').forEach(el => el.disabled = true);
+  try {
+    setStatus('busy', '正在生成预览…');
+    const data = pendingImageData;
+    await applyCover(data);
+    fullImageData = data;
+    imageName = pendingImageName;
+    const img = document.getElementById('spine-preview-img');
+    document.getElementById('image-meta').textContent = imageName + ' · ' + img.naturalWidth + ' × ' + img.naturalHeight + ' px';
+    const thumb = document.createElement('img');
+    thumb.src = data; thumb.className = 'upload-thumb'; thumb.alt = '已导入封面';
+    document.getElementById('upload-thumb-wrap').replaceChildren(thumb);
     document.getElementById('spine-section').style.display = 'block';
-    setStatus('busy', '⏳ 正在渲染...');
-    setTimeout(() => {
-      updateScene();
-      document.getElementById('export-single-btn').disabled = false;
-      document.getElementById('export-all-btn').disabled = false;
-      setStatus('ready', '✅ 渲染完成！拖动旋转 · 导出高清图片');
-      showToast('渲染完成！', 'success');
-    }, 200);
-  };
-  img.src = fullImageData;
+    closeCrop();
+    setExportBusy(false);
+    document.getElementById('preview-title').textContent = (bookType === 'hardcover' ? '精装' : '平装') + ' · ' + imageName;
+    selectStep('structure');
+    fitView();
+    showToast('封面已应用', 'success');
+  } catch (err) { reportError(err); }
+  finally {
+    btn.disabled = false;
+    document.querySelectorAll('#spine-modal input').forEach(el => el.disabled = false);
+    updateSpineLines();
+  }
 }
 
 function splitCover(img) {
@@ -1595,30 +1683,29 @@ function splitCover(img) {
   const backW = Math.max(1, leftX - usableStartX);
   const coverW = Math.max(1, usableEndX - rightX);
 
-  images.back = getRegion(usableStartX, 0, backW, img.height);
-  images.spine = getRegion(leftX, 0, spineW, img.height);
-  images.cover = getRegion(rightX, 0, coverW, img.height);
-  const sampledCover = sampleRegionEdgeColor(rightX, 0, coverW, img.height);
-  const sampledSpine = sampleRegionEdgeColor(leftX, 0, spineW, img.height);
+  images.back = getRegion(usableStartX, 0, backW, img.height, img);
+  images.spine = getRegion(leftX, 0, spineW, img.height, img);
+  images.cover = getRegion(rightX, 0, coverW, img.height, img);
+  const sampledCover = sampleRegionEdgeColor(rightX, 0, coverW, img.height, img);
+  const sampledSpine = sampleRegionEdgeColor(leftX, 0, spineW, img.height, img);
   coverEdgeColor = darkenHex(sampledCover, 0.82);
   hingeColor = darkenHex(sampledSpine || sampledCover, 0.62);
 
   const frontAspect = coverW / img.height;
   const baseW = 4.0;
   const spineToCover = spineW / Math.max(1, coverW);
-  const depth = Math.max(baseW * 0.035, Math.min(baseW * 0.85, baseW * spineToCover));
+  const depth = baseW * spineToCover;
   bookSize = {
     w: baseW,
-    h: Math.max(2.5, Math.min(7.2, baseW / Math.max(0.35, frontAspect))),
+    h: baseW / frontAspect,
     d: depth
   };
 }
 
-function getRegion(x, y, width, height) {
+function getRegion(x, y, width, height, img) {
   const c = document.createElement('canvas');
   c.width = width; c.height = height;
   const ctx = c.getContext('2d');
-  const img = document.getElementById('spine-preview-img');
   ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
   return c.toDataURL('image/png', 1.0);
 }
@@ -1627,6 +1714,8 @@ function getRegion(x, y, width, height) {
 // 测试封面
 // ══════════════════════════════════════════════════════════════
 function loadTestCover() {
+  if (exportBusy) return;
+  fileRevision++;
   setStatus('busy', '⏳ 生成测试封面...');
 
   const testCanvas = document.createElement('canvas');
@@ -1688,13 +1777,8 @@ function loadTestCover() {
   ctx.fillText('出版社：示例出版社', panelW + spineW2 + 50, ch - 80);
 
   const testDataURL = testCanvas.toDataURL('image/png');
-  fullImageData = testDataURL;
-
-  document.getElementById('upload-thumb-wrap').innerHTML =
-    `<img src="${testDataURL}" class="upload-thumb">`;
-
+  pendingImageName = '示例封面';
   showSpineModal(testDataURL);
-  setStatus('ready', '📐 测试封面已加载，请选择书脊区域');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1706,36 +1790,44 @@ function updateScene() {
 }
 
 async function exportSingle() {
+  if (exportBusy || !images.cover) return;
   const fmt = document.getElementById('export-format').value;
   const size = parseInt(document.getElementById('export-size').value);
-  setStatus('busy', '⏳ 正在渲染高清图...');
-
-  const dataURL = await getExportDataURL(fmt, size);
-  const ext = fmt === 'jpg' ? 'jpg' : 'png';
-  const defaultName = `书模_立体_${Date.now()}.${ext}`;
-
-  const result = await book3dBridge.saveFileDialog(defaultName, fmt);
-  if (!result || result.canceled) {
-    // 浏览器直接下载
-    downloadDataURL(dataURL, defaultName);
-    setStatus('ready', '已下载：' + defaultName);
-    return;
-  }
-
-  const ok = await book3dBridge.saveImageFile(result.filePath, dataURL);
-  if (ok) {
-    setStatus('ready', `✅ 已保存：${result.filePath.split('\\').pop()}`);
-    showToast('导出成功！', 'success');
-  } else {
-    setStatus('ready', '导出失败');
-  }
+  setExportBusy(true);
+  try {
+    const defaultName = `书模_${bookType === 'hardcover' ? '精装' : '平装'}_${Date.now()}.${fmt}`;
+    let filePath;
+    if (hasNativeDialog()) {
+      const result = await book3dBridge.saveFileDialog(defaultName, fmt);
+      if (!result || result.canceled) { setStatus('ready', '已取消导出'); return; }
+      filePath = result.filePath;
+    }
+    setStatus('busy', '正在渲染高清图…');
+    const dataURL = await getExportDataURL(fmt, size);
+    if (filePath) {
+      if (!await book3dBridge.saveImageFile(filePath, dataURL)) throw new Error('文件保存失败');
+    } else downloadDataURL(dataURL, defaultName);
+    setStatus('ready', filePath ? '已保存：' + filePath.split(/[\\/]/).pop() : '已发起下载：' + defaultName);
+    showToast('导出完成', 'success');
+  } catch (err) { reportError(err); }
+  finally { setExportBusy(false); }
 }
 
 async function exportAll() {
+  if (exportBusy || !images.cover || !selectedViewIds.length) return;
+  const angles = allViewPresets().filter(a => selectedViewIds.includes(a.id)).map((a, i) => ({
+    ...a, suffix: String(i + 1).padStart(2, '0') + '_' + BookViewPresets.safeFilename(a.name)
+  }));
+  if (!angles.length) return;
+  setExportBusy(true);
   const fmt = document.getElementById('export-format').value;
   const size = parseInt(document.getElementById('export-size').value);
+  const original = { az: rotX, el: rotY, rotZ, height: cameraHeight, zoom: cameraDistance };
+  const preset = loadedPreset;
+  const activePresets = [...document.querySelectorAll('.preset-btn')].map(btn => btn.classList.contains('active'));
+  try {
   let outputFolder = null;
-  if (window.electronAPI?.selectOutputFolder || window.__TAURI__?.dialog?.open) {
+  if (hasNativeDialog()) {
     const folderResult = await book3dBridge.selectOutputFolder();
     if (!folderResult || folderResult.canceled || !folderResult.filePaths?.length) {
       setStatus('ready', '已取消批量导出');
@@ -1744,80 +1836,267 @@ async function exportAll() {
     outputFolder = folderResult.filePaths[0];
   }
 
-  const angles = [
-    { name: '主图微侧', x: 0, y: 35, z: 0, height: 0, zoom: 11.5, suffix: '01_主图微侧' },
-    { name: '轻俯主图', x: 0, y: 28, z: 0, height: 1.2, zoom: 12.5, suffix: '02_轻俯主图' },
-    { name: '书脊款', x: 0, y: 58, z: 0, height: 0, zoom: 12, suffix: '03_书脊款' },
-    { name: '轻仰视', x: 0, y: 22, z: 0, height: -1.1, zoom: 12.5, suffix: '04_轻仰视' },
-  ];
-
-  setStatus('busy', '⏳ 正在批量导出...');
+  setStatus('busy', '正在批量导出…');
+  const batchId = Date.now();
 
   for (let i = 0; i < angles.length; i++) {
     const a = angles[i];
-    rotX = a.x; rotY = a.y; rotZ = a.z; cameraHeight = a.height; cameraDistance = a.zoom || cameraDistance;
-    syncCameraControls();
-    updateCamera();
-    await sleep(200);
+    setCameraValues(a.view, false, a.id.startsWith('custom-'));
 
     const dataURL = await getExportDataURL(fmt, size);
     const ext = fmt === 'jpg' ? 'jpg' : 'png';
-    const fileName = `书模_${a.suffix}.${ext}`;
+    const fileName = `书模_${batchId}_${a.suffix}.${ext}`;
 
     if (outputFolder) {
-      await book3dBridge.saveImageFile(outputFolder + '\\' + fileName, dataURL);
+      if (!await book3dBridge.saveImageFile(outputFolder + '/' + fileName, dataURL)) throw new Error('保存失败：' + fileName);
     } else {
       downloadDataURL(dataURL, fileName);
     }
 
-    setStatus('busy', `⏳ ${a.name} 已导出 (${i + 1}/${angles.length})`);
+    setStatus('busy', `${a.name} 已导出 (${i + 1}/${angles.length})`);
     await sleep(100);
   }
 
-  setStatus('ready', '✅ 4个常用角度全部导出完成！');
-  showToast('4个常用角度全部导出完成！', 'success');
+  setStatus('ready', angles.length + (outputFolder ? '个视角已保存' : '个视角已发起下载'));
+  showToast('批量导出完成', 'success');
+  } catch (err) { reportError(err); }
+  finally {
+    setCameraValues(original, preset, true);
+    document.querySelectorAll('.preset-btn').forEach((btn, i) => btn.classList.toggle('active', activePresets[i]));
+    setExportBusy(false);
+  }
 }
 
-function getExportDataURL(fmt, size) {
-  return new Promise(resolve => {
-    const tmpRenderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: bgType === 'transparent',
-      preserveDrawingBuffer: true
+async function getExportDataURL(fmt, size) {
+  await waitForTextures();
+  const previousRatio = renderer.getPixelRatio();
+  const previousBackground = scene.background;
+  const previousClear = renderer.getClearColor(new THREE.Color());
+  const previousAlpha = renderer.getClearAlpha();
+  try {
+    renderer.setPixelRatio(1);
+    renderer.setSize(size, size, false);
+    camera.aspect = 1;
+    camera.updateProjectionMatrix();
+    const white = fmt === 'jpg' || bgType === 'white';
+    scene.background = white ? new THREE.Color(0xffffff) : null;
+    renderer.setClearColor(white ? 0xffffff : 0x000000, white ? 1 : 0);
+    renderer.render(scene, camera);
+    return renderer.domElement.toDataURL(fmt === 'jpg' ? 'image/jpeg' : 'image/png', 0.97);
+  } finally {
+    renderer.setPixelRatio(previousRatio);
+    scene.background = previousBackground;
+    renderer.setClearColor(previousClear, previousAlpha);
+    onResize();
+  }
+}
+
+function hasNativeDialog() {
+  return !!(window.electronAPI || window.__TAURI__?.core);
+}
+
+function getPresetView(btn) {
+  if (btn.dataset.customId) return savedViews.find(a => a.id === btn.dataset.customId).view;
+  const scale = Math.max(1, Math.hypot(bookSize.w, bookSize.h, bookSize.d) / Math.hypot(4, 5.66, 0.52));
+  return {
+    az: Number(btn.dataset.az), el: Number(btn.dataset.el), rotZ: Number(btn.dataset.z || 0),
+    height: Number(btn.dataset.height || 0) * bookSize.h / 5.66,
+    zoom: Number(btn.dataset.zoom || 11.5) * scale
+  };
+}
+
+function setExportBusy(busy) {
+  exportBusy = busy;
+  document.body.classList.toggle('exporting', busy);
+  if (busy) {
+    exportDisabledStates.clear();
+    document.querySelectorAll('#left-panel input, #left-panel select, #left-panel button, #toolbar button').forEach(el => {
+      exportDisabledStates.set(el, el.disabled);
+      el.disabled = true;
     });
-    tmpRenderer.setPixelRatio(1);
-    tmpRenderer.setSize(size, size);
+  } else {
+    exportDisabledStates.forEach((disabled, el) => el.disabled = disabled);
+    exportDisabledStates.clear();
+  }
+  ['export-single-btn', 'export-all-btn', 'quick-export-btn'].forEach(id => document.getElementById(id).disabled = busy || !images.cover);
+  document.getElementById('export-all-btn').disabled = busy || !images.cover || !selectedViewIds.length;
+}
 
-    const exportBg = fmt === 'jpg' ? 'white' : bgType;
-    if (exportBg === 'white') {
-      tmpRenderer.setClearColor(0xffffff, 1);
-    } else if (exportBg === 'transparent') {
-      tmpRenderer.setClearColor(0x000000, 0);
-    } else {
-      tmpRenderer.setClearColor(parseInt(exportBg.replace('#', '0x')), 1);
+function currentView() {
+  return { az: rotX, el: rotY, rotZ, zoom: cameraDistance, height: cameraHeight };
+}
+
+function builtInViewButtons() { return [...document.querySelectorAll('.preset-grid .preset-btn')]; }
+
+function allViewPresets() {
+  return builtInViewButtons().map(btn => ({ id: btn.dataset.id, name: btn.textContent.trim(), view: getPresetView(btn) })).concat(savedViews);
+}
+
+function applyViewPreset(btn) {
+  if (exportBusy || !btn) return;
+  const view = getPresetView(btn);
+  setCameraValues(view, true, !!btn.dataset.customId);
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b === btn));
+}
+
+function viewStorageError(message) {
+  const el = document.getElementById('view-storage-error');
+  el.textContent = message;
+  el.hidden = !message;
+}
+
+// Persist first, then replace the in-memory list so a failed write cannot lose a saved view.
+function commitViewState(views, selected, rebuildLists = true) {
+  if (exportBusy) return false;
+  if (viewStorageBlocked) { reportError(new Error('本地视角数据无法读取，未覆盖原数据')); return false; }
+  try {
+    localStorage.setItem(viewStorageKey, BookViewPresets.encode({ views, selected }));
+    savedViews = views;
+    selectedViewIds = selected;
+    viewStorageError('');
+    if (rebuildLists) renderViewLists();
+    else updateBatchSelection();
+    return true;
+  } catch (err) {
+    viewStorageError('保存失败，原设置未变更：' + (err.message || String(err)));
+    reportError(new Error('视角保存失败：' + (err.message || String(err))));
+    return false;
+  }
+}
+
+function resetViewNameEditor() {
+  renamingViewId = null;
+  document.getElementById('view-name').value = '';
+  document.getElementById('cancel-view-edit').hidden = true;
+  for (const key of ['title', 'aria-label']) document.getElementById('save-view-btn').setAttribute(key, '保存当前视角');
+}
+
+function renderViewLists() {
+  const activeId = document.querySelector('.preset-btn.active')?.dataset.id;
+  const list = document.getElementById('saved-view-list');
+  const focused = document.activeElement;
+  const focusedRow = focused?.closest('.saved-view-row');
+  const focusId = focusedRow?.dataset.id;
+  const focusAction = focused?.dataset.action;
+  const focusIndex = savedViews.findIndex(a => a.id === focusId);
+  list.replaceChildren();
+  if (!savedViews.length) {
+    const empty = document.createElement('div'); empty.className = 'empty-views'; empty.textContent = '暂无已保存视角'; list.appendChild(empty);
+  }
+  savedViews.forEach(a => {
+    const row = document.createElement('div'); row.className = 'saved-view-row'; row.dataset.id = a.id;
+    const apply = document.createElement('button'); apply.type = 'button'; apply.className = 'preset-btn';
+    apply.dataset.id = apply.dataset.customId = a.id; apply.textContent = a.name;
+    apply.classList.toggle('active', a.id === activeId); apply.addEventListener('click', () => applyViewPreset(apply)); row.appendChild(apply);
+    const actions = document.createElement('div'); actions.className = 'saved-view-actions';
+    for (const [action, icon, title] of [['update', 'Save', '用当前设置更新'], ['rename', 'Pencil', '重命名'], ['delete', 'Trash2', '删除视角']]) {
+      const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn btn-secondary icon-btn'; btn.dataset.action = action;
+      btn.title = title; btn.setAttribute('aria-label', title + '：' + a.name); btn.disabled = viewStorageBlocked;
+      const span = document.createElement('span'); span.dataset.icon = icon; btn.appendChild(span);
+      btn.addEventListener('click', () => editSavedView(a.id, action)); actions.appendChild(btn);
     }
-
-    const tmpScene = new THREE.Scene();
-    if (exportBg === 'white') {
-      tmpScene.background = new THREE.Color(0xffffff);
-    } else if (exportBg !== 'transparent') {
-      tmpScene.background = new THREE.Color(exportBg);
-    }
-    if (bookGroup) tmpScene.add(bookGroup.clone());
-
-    const asp = 1;
-    const tmpCam = new THREE.PerspectiveCamera(35, asp, 0.1, 1000);
-    const r = cameraDistance;
-    tmpCam.position.set(0, cameraHeight, r);
-    tmpCam.lookAt(0, 0, 0);
-
-    tmpRenderer.render(tmpScene, tmpCam);
-
-    const mime = fmt === 'jpg' ? 'image/jpeg' : 'image/png';
-    const dataURL = tmpRenderer.domElement.toDataURL(mime, fmt === 'jpg' ? 0.97 : 1.0);
-    tmpRenderer.dispose();
-    resolve(dataURL);
+    row.appendChild(actions);
+    const summary = document.createElement('div'); summary.className = 'view-summary';
+    summary.textContent = `X ${a.view.az.toFixed(1)}° · Y ${a.view.el.toFixed(1)}° · Z ${a.view.rotZ.toFixed(1)}° · 距离 ${a.view.zoom.toFixed(2)} · 高度 ${a.view.height.toFixed(2)}`;
+    row.appendChild(summary); list.appendChild(row);
   });
+  const batch = document.getElementById('batch-view-list'); batch.replaceChildren();
+  allViewPresets().forEach(a => {
+    const label = document.createElement('label'); label.className = 'batch-view-row';
+    const input = document.createElement('input'); input.type = 'checkbox'; input.dataset.viewId = a.id; input.checked = selectedViewIds.includes(a.id); input.disabled = viewStorageBlocked;
+    input.addEventListener('change', () => {
+      const selected = input.checked ? [...selectedViewIds, a.id] : selectedViewIds.filter(id => id !== a.id);
+      if (!commitViewState(savedViews, selected, false)) input.checked = selectedViewIds.includes(a.id);
+    });
+    const name = document.createElement('span'); name.textContent = a.name;
+    const type = document.createElement('small'); type.textContent = a.id.startsWith('custom-') ? '我的' : '预设';
+    label.append(input, name, type); batch.appendChild(label);
+  });
+  updateBatchSelection();
+  document.getElementById('save-view-btn').disabled = viewStorageBlocked;
+  renderIcons();
+  if (focusedRow) {
+    const rows = [...list.querySelectorAll('.saved-view-row')];
+    const row = rows.find(el => el.dataset.id === focusId);
+    const next = row?.querySelector(focusAction ? `[data-action="${focusAction}"]` : '.preset-btn')
+      || rows[Math.max(0, Math.min(focusIndex, rows.length - 1))]?.querySelector('.preset-btn')
+      || document.getElementById('view-name');
+    next.focus();
+  }
+}
+
+function updateBatchSelection() {
+  document.querySelectorAll('#batch-view-list input').forEach(input => input.checked = selectedViewIds.includes(input.dataset.viewId));
+  const ids = builtInViewButtons().map(btn => btn.dataset.id);
+  const groups = { common: ids.slice(0, 4), recommended: ids, custom: savedViews.map(a => a.id) };
+  document.querySelectorAll('[data-batch]').forEach(btn => {
+    const group = groups[btn.dataset.batch];
+    const active = selectedViewIds.length === group.length && group.every(id => selectedViewIds.includes(id));
+    btn.classList.toggle('active', active); btn.setAttribute('aria-pressed', String(active));
+    btn.disabled = viewStorageBlocked || (btn.dataset.batch === 'custom' && !savedViews.length);
+  });
+  document.getElementById('batch-count').textContent = selectedViewIds.length;
+  document.getElementById('batch-export-label').textContent = `导出选中视角（${selectedViewIds.length}）`;
+  document.getElementById('export-all-btn').disabled = exportBusy || !images.cover || !selectedViewIds.length;
+}
+
+function editSavedView(id, action) {
+  if (exportBusy || viewStorageBlocked) return;
+  const entry = savedViews.find(a => a.id === id);
+  if (action === 'rename') {
+    renamingViewId = id;
+    const input = document.getElementById('view-name'); input.value = entry.name; input.focus(); input.select();
+    document.getElementById('cancel-view-edit').hidden = false;
+    for (const key of ['title', 'aria-label']) document.getElementById('save-view-btn').setAttribute(key, '保存名称');
+  } else if (action === 'delete') {
+    if (!window.confirm(`删除视角“${entry.name}”？`)) return;
+    if (commitViewState(savedViews.filter(a => a.id !== id), selectedViewIds.filter(a => a !== id))) {
+      if (renamingViewId === id) resetViewNameEditor();
+      showToast('视角已删除');
+    }
+  } else if (window.confirm(`用当前相机设置覆盖“${entry.name}”？`)) {
+    if (commitViewState(savedViews.map(a => a.id === id ? { ...a, view: currentView() } : a), selectedViewIds)) showToast('视角已更新', 'success');
+  }
+}
+
+function setupViewPresets() {
+  const builtIns = builtInViewButtons();
+  selectedViewIds = builtIns.slice(0, 4).map(btn => btn.dataset.id);
+  try {
+    const state = BookViewPresets.decode(localStorage.getItem(viewStorageKey));
+    savedViews = state.views;
+    if (state.selected !== null) {
+      const validIds = [...builtIns.map(btn => btn.dataset.id), ...savedViews.map(a => a.id)];
+      selectedViewIds = state.selected.filter(id => validIds.includes(id));
+    }
+  } catch (err) {
+    viewStorageBlocked = true;
+    viewStorageError('无法读取已保存视角，原数据已保留：' + (err.message || String(err)));
+  }
+  builtIns.forEach(btn => btn.addEventListener('click', () => applyViewPreset(btn)));
+  document.getElementById('cancel-view-edit').addEventListener('click', resetViewNameEditor);
+  document.getElementById('view-save-form').addEventListener('submit', e => {
+    e.preventDefault();
+    if (exportBusy) return;
+    try {
+      const name = BookViewPresets.normalizeName(document.getElementById('view-name').value);
+      const id = renamingViewId || 'custom-' + crypto.randomUUID();
+      const views = renamingViewId ? savedViews.map(a => a.id === id ? { ...a, name } : a) : [...savedViews, { id, name, view: currentView() }];
+      const selected = renamingViewId ? selectedViewIds : [...selectedViewIds, id];
+      if (commitViewState(views, selected)) { resetViewNameEditor(); showToast('视角已保存', 'success'); }
+    } catch (err) { reportError(err); }
+  });
+  document.querySelectorAll('[data-batch]').forEach(btn => btn.addEventListener('click', () => {
+    const ids = builtIns.map(a => a.dataset.id);
+    commitViewState(savedViews, btn.dataset.batch === 'custom' ? savedViews.map(a => a.id) : btn.dataset.batch === 'common' ? ids.slice(0, 4) : ids, false);
+  }));
+  renderViewLists();
+}
+
+function reportError(err) {
+  const message = err?.message || String(err);
+  setStatus('error', message);
+  showToast(message, 'error');
 }
 
 function downloadDataURL(dataURL, filename) {
@@ -1852,7 +2131,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initThree();
   initUI();
   syncCameraControls();
-  setStatus('ready', '📤 请上传展开封面图，或点击"测试封面演示"');
+  setStatus('ready', '等待封面');
 });
 </script>
 </body>
