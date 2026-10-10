@@ -1,9 +1,13 @@
-name: Build exe
+name: Release Tauri Windows
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -11,22 +15,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build exe
-        run: npm run build
-        env:
-          ELECTRON_CACHE: ${{ runner.temp }}/electron_cache
-
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
+      - name: Test
+        run: npm test
+      - name: Verify release tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: npm run check:release -- ${{ github.ref_name }}
+      - name: Build Tauri executable and NSIS installer
+        run: npm run tauri:build -- --ci
+      - name: Prepare downloads and checksums
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Path release-assets | Out-Null
+          Copy-Item -LiteralPath 'src-tauri/target/release/book-3d-app.exe' -Destination "release-assets/book-3d-generator_${version}_windows-x64.exe"
+          $installers = @(Get-ChildItem -LiteralPath 'src-tauri/target/release/bundle/nsis' -Filter '*-setup.exe')
+          if ($installers.Count -ne 1) { throw 'Expected exactly one NSIS installer' }
+          Copy-Item -LiteralPath $installers[0].FullName -Destination "release-assets/book-3d-generator_${version}_windows-x64-setup.exe"
+          $sums = Get-ChildItem release-assets -Filter '*.exe' | Sort-Object Name | ForEach-Object {
+            "$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          }
+          $sums | Set-Content release-assets/SHA256SUMS.txt -Encoding ascii
+      - uses: actions/upload-artifact@v4
         with:
-          files: dist_portable/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: windows-x64
+          path: release-assets/*
+          if-no-files-found: error
+      - name: Publish stable release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }} - Book 3D Generator / 立体书样机生成器
+          body_path: docs/releases/${{ github.ref_name }}.md
+          make_latest: true
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: release-assets/*
