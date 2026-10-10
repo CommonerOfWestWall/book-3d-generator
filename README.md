@@ -1,222 +1,126 @@
-# 立体书样机生成器
+# 立体书样机生成器 / Book 3D Generator
+基础版本 / Base version: `1.1.0`。本次精装与流程优化尚未发布 / This hardcover and workflow update is not yet released.
 
-> **English?** Jump to [English Section](#english).
+## 中文
+### 定位
+Windows 桌面端的封面展开图 3D 样机工具。结果是近似展示用 mockup，不是印刷生产文件，也不替代印厂的出血、装订或纸张规格校验。
 
----
+支持的模型只有：闭合平装、闭合平直书脊精装；不提供开书、圆脊或书衣模型。
 
-## 📖 简介
-
-立体书样机生成器是一款基于 **Electron + Three.js** 的 Windows 桌面应用，可将书籍封面展开长图一键渲染为逼真的 **3D 书籍效果图**，支持：
-
-- 🖼️ 支持封面长图格式（封面 + 书脊 + 封底水平拼接图）
-- ✂️ 支持裁切两端勒口，只用实际封底 / 书脊 / 封面生成书模
-- 📐 精准控制书脊宽度、封面厚度、内页深度
-- 🔄 三种翻页视角：平摊视角 / 半开视角 / 全开视角
-- 🎨 背景模式：纯透明 / 纯色 / 渐变
-- 📦 批量导出多角度效果图（PNG / JPG）
-- ⚡ 实时预览，拖拽即调
-
----
-
-## 🖥️ 快速开始
-
-### 方式一：下载 exe 直接运行（推荐）
-
-👉 **下载最新版本 → [Releases 页面](https://github.com/CommonerOfWestWall/book-3d-generator/releases)**
-
-下载 `立体书样机生成器-免安装精简版-v6.zip`，解压后双击 `立体书样机生成器.exe` 即可运行，**无需安装，无需联网**。
-
-> ⚠️ 首次运行如果杀毒软件报毒（ Electron 壳程序特征），请添加信任或关闭杀毒，这是正常现象。
-
----
-
-### 方式二：从源码运行
-
-#### 环境要求
-
-- Node.js ≥ 18（含 npm）
-- Windows 10/11（x64）
-
-#### 安装步骤
-
-```bash
-# 克隆仓库
-git clone https://github.com/CommonerOfWestWall/book-3d-generator.git
-cd book-3d-generator
-
-# 安装依赖
-npm install
-
-# 启动应用
-npm start
-```
-
-#### 打包为 Electron exe
-
-```bash
-npm install --save-dev electron-builder
-npm run build
-```
-
-打包产物在 `dist_portable/` 目录中。
-
-#### 打包为 Tauri 2 轻量版
-
-需要先安装 Rust 和 Windows WebView2 运行环境。
-
-```bash
-npm install
-npm run tauri:build
-```
-
-Tauri 产物在 `src-tauri/target/release/` 和 `src-tauri/target/release/bundle/` 目录中。
-
----
-
-## 📸 封面图要求
-
-软件接受一张**水平拼接的展开长图**，格式如下：
-
-```
-[封面（左）] [书脊（中）] [封底（右）]
-```
-
-| 区域 | 说明 |
-|------|------|
-| 封面（左） | 书籍正面 |
-| 书脊（中） | 书脊区域，建议宽度为主图的 10%~15% |
-| 封底（右） | 书籍背面 |
-
-支持的图片格式：`jpg / jpeg / png / tif / tiff / webp / bmp`
-
-如果展开图两端包含勒口，在选择书脊弹窗中勾选“裁切两端勒口”，拖动蓝色裁切线包住实际封底、书脊和封面；蓝线外侧不会参与书模生成。
-
----
-
-## 🎮 功能说明
-
-### 视角模式
-
-| 模式 | 说明 |
-|------|------|
-| **平摊视角** | 两页完全展开铺平，适合展示内页设计 |
-| **半开视角** | 书籍半开状态，可调翻页角度 0°~180° |
-| **全开视角** | 经典 3D 书籍展示，封面和封底各约 30° 外翻 |
-
-### 参数控制
-
-- **书脊宽度**：书脊区域占主图宽度的百分比（默认 12%）
-- **封面厚度**：书籍侧边厚度感（默认 3.0）
-- **内页深度**：书页层叠的厚度感（默认 1.5）
-- **翻页角度**：半开视角时左右翻开的角度
-- **Y 轴旋转**：绕垂直轴旋转，360° 自由调整
-- **预设角度**：快速切换常见展示角度（俯视、左视、45° 等）
-
-### 背景模式
-
-- **透明**：输出 PNG 透明背景，适用于印刷品排版
-- **白色**：纯白背景，适用于电商主图
-- **渐变**：蓝紫渐变，适合社交媒体展示
-
----
-
-## 🛠️ 技术栈
-
-| 层级 | 技术 |
-|------|------|
-| 桌面框架 | Electron 33 / Tauri 2 |
-| 3D 渲染 | Three.js 0.171 |
-| 构建工具 | electron-builder / Tauri CLI |
-| 许可证 | MIT |
-
----
-
-## 📄 许可证
-
-本项目采用 **MIT 许可证**开源。详见 [LICENSE](LICENSE) 文件。
-
----
-
-## 🌟 Star History
-
-如果这个工具对你有帮助，欢迎点个 ⭐ Star！
-
----
-
-<a name="english"></a>
-
----
-
-## 3D Book Mockup Generator
-
-### Overview
-
-A lightweight Windows desktop application built with **Electron / Tauri 2 + Three.js** that renders book cover images into photorealistic **3D book mockups** — no internet required, no installation needed.
-
-### Features
-
-- 📐 Support for flat-spread cover images (front cover + spine + back cover)
-- ✂️ Optional flap cropping for cover spreads that include front/back flaps
-- 📏 Precise control: spine width, cover thickness, page depth
-- 🔄 Three open modes: flat / half-open / fully open
-- 🎨 Background modes: transparent / white / gradient
-- 📦 Batch export multiple angles as PNG or JPG
-- ⚡ Real-time preview with drag-and-drop
-
-### Quick Start (exe)
-
-Download from the **[Releases page](https://github.com/CommonerOfWestWall/book-3d-generator/releases)** → download the latest `.zip` → extract and double-click the `.exe`.
-
-### Run from Source
-
-```bash
-git clone https://github.com/CommonerOfWestWall/book-3d-generator.git
-cd book-3d-generator
-npm install
-npm start
-```
-
-### Cover Image Format
-
-The app accepts one horizontal flat-spread image:
-
+输入是一张水平展开图，顺序为：
 ```text
-[front cover] [spine] [back cover]
+[封底 / back] [书脊 / spine] [封面 / front]
 ```
+两端可以带可选外勒口（outer flaps）。
 
-If your spread includes book flaps on both outer edges, enable **Crop outer flaps** in the spine selection dialog. Drag the blue crop handles so they wrap only the real back cover, spine, and front cover. The areas outside the blue handles will be removed before rendering the 3D book.
+### 工作流
+界面分为四个标签页：`封面`、`书型`、`视角`、`导出`。
 
-Supported image formats: `jpg / jpeg / png / tif / tiff / webp / bmp`
+封面裁切弹窗支持数字输入和指针拖拽：红色书脊左/右边界，以及启用“裁切两端勒口”后的蓝色勒口左/右边界。`取消`、Esc 和关闭按钮会事务性取消本次修改，保留已提交图片与裁切；重新打开会恢复已提交值。
 
-### Build Electron exe
+书脊宽度、封板厚度和出飘是按封面宽度百分比计算的几何估算，不是物理毫米值。封面宽高比保持原图比例；总深度根据选定书脊宽度估算。
 
+### 预览与导出
+- 预览为自适应正方形画布，与导出构图一致；导出边长为 `1024`、`1920` 或 `2560` 像素。
+- PNG 可用透明或白色背景；JPG 使用白色背景。
+- 常用四张为封面正视、封面微侧、书口微侧、封底正视；推荐六张另含封底微侧、斜俯展示。角度依据公开商品图抽样校准，不是平台强制标准，见 [视角参考与保存说明](docs/product-views.md)。
+- “视角”页可命名保存当前 X/Y/Z 旋转、镜头距离和高度，支持应用、更新、重命名、删除；保存的数值不随封面尺寸自动缩放。
+- “导出”页可勾选任意预设与已保存视角，或选择常用四张、推荐六张、我的视角；结束、失败或取消后恢复原视角。新保存的视角自动加入批量选择，空选择禁用批量导出。
+- 视角和批量选择保存在当前用户的本地应用存储中，重启后保留，不上传到服务器；浏览器模式按网址保存。删除本地应用数据会丢失设置。存储读取异常时保留原数据并禁用修改，写入失败时保留原设置并提示错误。
+- Electron/Tauri 原生保存或文件夹对话框取消会被尊重，不会偷偷改用浏览器下载。
+- 无原生对话框时使用浏览器下载；批量下载可能需要允许多个文件下载。
+
+### 运行与构建
+需要 Windows x64、Node.js 和 npm：
 ```bash
-npm install --save-dev electron-builder
-npm run build
+npm ci
 ```
-
-Electron output is written to `dist_portable/`.
-
-### Build Tauri 2 lightweight app
-
-Rust and Windows WebView2 are required.
-
+Tauri 2 需要 Rust、Windows MSVC 工具链以及系统已安装的 WebView2。WebView2 不随应用打包，所以程序体积较小；未签名构建可能显示 Windows 安全警告。不要通过关闭或禁用杀毒软件来处理该警告。
 ```bash
-npm install
+npm run tauri:dev
 npm run tauri:build
 ```
+Electron 入口仍保留：
+```bash
+npm start
+npm run build
+```
+不要根据 README 推断下载文件名或“最新版本”；发布二进制和版本信息以实际发布记录为准。
 
-Tauri output is written to `src-tauri/target/release/` and `src-tauri/target/release/bundle/`.
+### 开发与验证
+```bash
+npm test
+npm run test:ui
+```
+`npm test` 使用 Node 内置测试运行几何与视角数据检查。`npm run test:ui` 使用外部 Playwright，并在可用时通过 Edge；若本机未解析到 Playwright，可按本机配置提供 `NODE_PATH`，不需要为此新增依赖。
 
-### Tech Stack
+目录要点：`renderer/index.html`（界面、Three.js 场景、裁切与导出运行时）、`renderer/book-model.js`（精装几何）、`renderer/three.min.js`（vendored Three.js r128）、`tests/`（Node 几何与浏览器工作流）、`src-tauri/`（Tauri 2 壳与原生文件操作）。仓库还声明了较新的 npm Three.js 依赖，但运行时继续使用 vendored r128；本任务不升级它。
 
-| Layer | Technology |
-|------|------|
-| Desktop shell | Electron 33 / Tauri 2 |
-| 3D rendering | Three.js 0.171 |
-| Build tools | electron-builder / Tauri CLI |
-| License | MIT |
+### 参考资料
+- [Bookmobile: How do you calculate the hardcover size?](https://info.bookmobile.com/knowledge/how-do-you-calculate-the-hardcover-size)
+- [Three.js Texture documentation](https://threejs.org/docs/#api/en/textures/Texture)
+- [Three.js Color documentation](https://threejs.org/docs/#api/en/math/Color)
 
-### License
+MIT，见 [LICENSE](LICENSE)。
 
-MIT — see [LICENSE](LICENSE).
+## English
+### Scope
+A Windows desktop tool for turning a flat cover spread into a 3D presentation mockup. It is an approximate mockup, not a print-production file, and does not replace a printer’s bleed, binding, or paper-spec checks.
+
+Supported models: closed paperback and closed flat-spine hardcover only. There are no open-book, rounded-spine, or dust-jacket models.
+
+The input is one horizontal spread in this order:
+```text
+[back] [spine] [front]
+```
+Optional outer flaps may be included at the two ends.
+
+### Workflow
+The UI has four tabs: `Cover`, `Structure`, `View`, and `Export`.
+
+The crop dialog accepts numeric input and pointer dragging for the red spine-left/right handles and, when outer-flap cropping is enabled, the blue outer-flap handles. `Cancel`, Esc, and the close button transactionally discard the current edit and keep the committed image/crop; reopening preserves committed values.
+
+Spine width, board thickness, and overhang are geometry estimates expressed as percentages of cover width, not physical millimetres. The exact cover aspect ratio is preserved; total depth is estimated from the selected spine width.
+
+### Preview and export
+- The responsive square preview matches the export framing; export dimensions are `1024`, `1920`, or `2560` pixels per side.
+- PNG supports transparent or white backgrounds; JPG uses white.
+- The common four views are straight front, front with spine, front with fore-edge, and straight back. The recommended six add back with spine and an oblique top view. These are calibrated from public listing samples, not platform requirements. See [view references and saved settings](docs/product-views.md).
+- Name and save X/Y/Z rotation, camera distance and height in the View tab. Apply, update, rename and delete saved views. Custom camera values remain exact rather than scaling with a different cover.
+- Select any combination of built-in and saved views for batch export, or choose common four, recommended six or all custom views. The original camera is restored after completion, failure or cancellation. New saved views are selected automatically; an empty selection disables batch export.
+- Views and selections persist in the current user's local application storage without server uploads; browser storage is per origin. Clearing application data removes them. Invalid storage is retained without overwriting; failed writes report errors and keep previous settings.
+- Native Electron/Tauri save or folder-dialog cancellation is honored; it does not silently fall back to a browser download.
+- Without a native dialog, the browser download path is used; browsers may require permission for multiple batch downloads.
+
+### Run and build
+Requirements: Windows x64, Node.js, and npm.
+```bash
+npm ci
+```
+Tauri 2 requires Rust, the Windows MSVC toolchain, and WebView2 installed on the system. WebView2 is not bundled, keeping the application binary small; unsigned builds may show a Windows security warning. Do not disable antivirus software to handle that warning.
+```bash
+npm run tauri:dev
+npm run tauri:build
+```
+The Electron path remains available:
+```bash
+npm start
+npm run build
+```
+Do not infer a downloadable filename or “latest release” from this document; use the actual release record for published binaries and versions.
+
+### Development and verification
+```bash
+npm test
+npm run test:ui
+```
+`npm test` runs geometry and saved-view data checks with Node’s built-in test runner. `npm run test:ui` uses external Playwright and Edge when available; provide `NODE_PATH` according to the local setup if Playwright is not resolved. No dependency is added for that setup.
+
+Key paths: `renderer/index.html` (UI, Three.js scene, crop, export), `renderer/book-model.js` (hardcover geometry), `renderer/three.min.js` (vendored Three.js r128), `tests/` (Node geometry and browser workflow), and `src-tauri/` (Tauri 2 shell/native file operations). The repository also declares a newer npm Three.js dependency, but the runtime remains vendored r128 and is not upgraded here.
+
+### References
+- [Bookmobile: How do you calculate the hardcover size?](https://info.bookmobile.com/knowledge/how-do-you-calculate-the-hardcover-size)
+- [Three.js Texture documentation](https://threejs.org/docs/#api/en/textures/Texture)
+- [Three.js Color documentation](https://threejs.org/docs/#api/en/math/Color)
+
+MIT; see [LICENSE](LICENSE).

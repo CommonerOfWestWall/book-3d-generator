@@ -7,6 +7,8 @@
     "start": "electron .",
     "build": "electron-builder --win dir --x64",
     "pack": "electron-builder --win dir --x64",
+    "test": "node --test tests/book-model.test.cjs tests/view-presets.test.cjs",
+    "test:ui": "node tests/workflow.cjs",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
