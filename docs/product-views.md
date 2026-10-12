@@ -1,6 +1,6 @@
 # 商品视角与自定义设置 / Product Views and Saved Settings
 
-本文记录稳定版 `1.2.0` 的内置视角与本地保存行为；发布状态和下载资产以 [GitHub v1.2.0 发布页](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.2.0)为准。 This document describes the stable `1.2.0` built-in views and local persistence; release status and assets are tracked on the [GitHub v1.2.0 release page](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.2.0).
+本文记录稳定版 `1.3.0` 的内置视角与保存行为；发布状态和下载资产以 [GitHub v1.3.0 发布页](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.3.0)为准。 This document describes stable `1.3.0` view and persistence behavior; release status and downloads are tracked on the [GitHub v1.3.0 release page](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.3.0).
 
 ## 抽样参考 / Qualitative References
 检查日期 / Inspected: 2026-10-10.
@@ -21,6 +21,14 @@ This is a qualitative sample, not a platform-wide survey. Product photos do not 
 
 No reliably inspectable full galleries were obtained for Taobao/Tmall or Pinduoduo. No login or access restrictions were bypassed.
 
+## 1.3.0 当前字段与迁移 / Current Fields and Migration
+
+当前视角字段为 `az`、`el`、`rotZ`、`zoom`、`height`、`fov`、`vanishX`、`vanishY`。FOV 范围为 `10`–`70` 度、默认 `35` 度；`vanishX` 和 `vanishY` 范围均为 `-40%`–`40%`、默认 `0%`。改变 FOV 时自动补偿距离；必要时自动退远以避免裁边，同时保留旋转和高度。内置视角使用 `fov=35`、`vanishX=0`、`vanishY=0`。
+
+The current version stores `az`, `el`, `rotZ`, `zoom`, `height`, `fov`, `vanishX` and `vanishY`. FOV ranges from `10` to `70` degrees, default `35`; both offsets range from `-40%` to `40%`, default `0%`. FOV changes compensate distance, and a framing guard may retreat while preserving rotation and height. Built-in views use `fov=35`, `vanishX=0`, `vanishY=0`.
+
+Legacy v1 records with five fields receive the projection defaults when read. The v2 record is read first; v1 is read only when the v2 storage key is absent. The old storage is not overwritten, and the two stores do not synchronize later edits. / 旧版五字段 v1 记录读取时补默认投影值；优先读取 v2，只有 v2 存储键不存在时才读取 v1。旧存储不会被覆盖，两套存储之后也不会同步改动。
+
 ## 内置视角 / Built-In Views
 镜头高度均为 0，距离根据书型包围尺寸适配。 Built-in height is 0; distance adapts to the book's bounding dimensions.
 
@@ -38,23 +46,24 @@ No reliably inspectable full galleries were obtained for Taobao/Tmall or Pinduod
 The default set favors readable titles and front-dominant framing over stronger side rotations and low-angle views. The oblique view is supplementary, not a universal main-image recommendation.
 
 ## 保存与导出 / Save and Export
-1. 在“视角”页调整旋转、距离、高度，填写名称并点击保存图标。 Enter a name and save the current rotations, distance and height in the View tab.
+1. 在“视角”页调整 `az`、`el`、`rotZ`、`zoom`、`height`、`fov`、`vanishX`、`vanishY` 八个字段，填写名称并点击保存图标。 Enter a name and save all eight fields (`az`, `el`, `rotZ`, `zoom`, `height`, `fov`, `vanishX`, `vanishY`) in the View tab.
 2. 点击保存的名称应用；保存、铅笔、垃圾桶图标分别更新当前参数、重命名、删除。更新和删除需要确认。 Apply by clicking its name; the save, pencil and trash icons update, rename and delete. Updating and deleting require confirmation.
 3. 在“导出”页选择组合或逐项勾选，可混合内置和自定义视角。新视角自动勾选，批量选择也会保留。 Choose a group or individual checkboxes in Export; built-in/custom views may be mixed. Newly saved views are selected automatically and batch selections persist.
 
-名称允许 1 至 40 个 Unicode 字符，同名（忽略大小写）不能重复；导出文件名自动替换 Windows 不允许的字符，并带序号和时间标记。至多 100 个自定义视角。参数只包含相机，不包含封面、书型、背景和输出尺寸。
+名称允许 1 至 40 个 Unicode 字符，同名（忽略大小写）不能重复；导出文件名自动替换 Windows 不允许的字符，并带序号和时间标记。至多 100 个自定义视角。保存字段为上述 8 个相机/投影字段，不包含封面、书型、书厚、书脊阴影、背景和输出尺寸。
 
 Names accept 1–40 Unicode characters and must be unique ignoring case. Export filenames sanitize Windows-invalid characters and include sequence and time markers. Up to 100 custom views are allowed. Saved values include camera settings only, not the image, structure, background or output size.
 
 自定义视角保留精确数值，不随另一本书自动缩放。不同开本可能需要点“适配画面”后更新保存。设置按当前 Windows 用户与应用标识保存在 WebView 本地存储；更换电脑、删除应用数据或使用不同浏览器网址，不会自动迁移。
 
-Custom views preserve exact values without automatic rescaling to another cover. A different format may require fitting and updating the view. Storage belongs to the current Windows user and application identity; it does not automatically migrate between computers, cleared profiles or browser origins.
+Custom views preserve exact values without automatic rescaling to another cover. A different format may require fitting and updating the view. Storage belongs to the current Windows user and application identity; it does not automatically migrate between computers, cleared profiles or browser origins. Thickness and spine shadow are session-only and are not saved.
 
 存储损坏时禁用改写并保留原始内容；不会自动清空。空间不足或权限问题导致保存失败时，界面明确提示且不替换原设置。
 
 Corrupt storage is retained with writes disabled, never cleared automatically. Failed writes such as quota or permission errors are reported without replacing previous settings.
 
 ## 验证 / Verification
-- 17 项 Node 单测通过；浏览器验证平装和精装共 12 个预设输出的非空像素与不裁边、三种导出分辨率、桌面与移动布局，以及保存/重命名/更新/删除、存储异常和混合批量导出。 17 Node tests pass; browser tests cover 12 paperback/hardcover preset outputs with nonblank pixels and framing bounds, three export resolutions, responsive layouts, saved-view CRUD, storage errors and mixed batch export.
-- Tauri EXE 和 NSIS 安装包构建通过，文件版本均为 1.2.0。隔离 WebView2 测试确认完整退出再启动后设置保留，自定义批量 PNG 与同角度单张 PNG 字节相同；实际保存使用 Rust 文件接口。 Tauri and NSIS builds pass with file version 1.2.0. Isolated WebView2 tests verify persistence after full process restart and byte-identical single/custom-batch PNGs saved through the real Rust file API.
+- `1.3.0` 的 25 项 Node 单测及版本一致性检查通过；旧版标签被拒绝。完整界面回归覆盖平装与精装 12 个预设、三种分辨率、桌面与移动布局、保存视角操作、存储异常、混合批量导出，以及书厚、透视和阴影开关。 All 25 Node tests and release consistency checks pass for `1.3.0`; old tags are rejected. Full UI regressions cover 12 presets across both book types, three resolutions, responsive layouts, saved-view operations, storage errors, mixed batch export, thickness, perspective and shadow toggling.
+- Tauri EXE 与 NSIS 构建成功，文件与产品版本均为 `1.3.0`。 Tauri EXE and NSIS builds succeed with FileVersion/ProductVersion `1.3.0`.
+- 隔离原生测试确认版本显示、旧 v1 存储不改写、完整重启后 8 字段视角保留、书厚与阴影跨书型保留，以及 Rust 单张和自定义批量 PNG 字节一致。 Isolated native checks verify the displayed version, untouched v1 storage, all eight saved-view fields after a full restart, thickness/shadow retention across type changes, and byte-identical Rust single/custom-batch PNGs.
 - 未重新验证安装向导、缺失 WebView2 时的下载过程或 Electron 打包；原生文件夹对话框取消路径采用模拟结果测试。 Installer wizard, missing-runtime download and Electron packaging were not re-tested; native folder-dialog cancellation uses mocked results.

@@ -12,13 +12,18 @@
   var CONTROL_RE = /[\u0000-\u001F\u007F-\u009F]/g;
   var INVALID_FILENAME_RE = /[<>:"/\\|?*\u0000-\u001F\u007F-\u009F]/g;
   var RESERVED_BASENAME_RE = /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
-  var VIEW_FIELDS = ['az', 'el', 'rotZ', 'zoom', 'height'];
+  var VIEW_FIELDS = ['az', 'el', 'rotZ', 'zoom', 'height', 'fov', 'vanishX', 'vanishY'];
+  var LEGACY_VIEW_FIELDS = ['az', 'el', 'rotZ', 'zoom', 'height'];
+  var DEFAULT_PROJECTION = { fov: 35, vanishX: 0, vanishY: 0 };
   var VIEW_RANGES = {
     az: [-180, 180],
     el: [-180, 180],
     rotZ: [-180, 180],
     zoom: [8, 1000],
-    height: [-1000, 1000]
+    height: [-1000, 1000],
+    fov: [10, 70],
+    vanishX: [-40, 40],
+    vanishY: [-40, 40]
   };
 
   function fail(message) {
@@ -45,12 +50,28 @@
     return normalized;
   }
 
-  function validateView(value) {
+  function validateView(value, requireProjection) {
     if (!isPlainObject(value)) fail('视角数据必须是普通对象');
     var result = {};
-    VIEW_FIELDS.forEach(function (field) {
+    LEGACY_VIEW_FIELDS.forEach(function (field) {
       if (!Object.prototype.hasOwnProperty.call(value, field)) {
         fail('视角数据缺少字段 ' + field);
+      }
+      var number = value[field];
+      var range = VIEW_RANGES[field];
+      if (typeof number !== 'number' || !Number.isFinite(number)) {
+        fail('视角字段 ' + field + ' 必须是有限数字');
+      }
+      if (number < range[0] || number > range[1]) {
+        fail('视角字段 ' + field + ' 超出允许范围');
+      }
+      result[field] = number;
+    });
+    VIEW_FIELDS.slice(5).forEach(function (field) {
+      if (!Object.prototype.hasOwnProperty.call(value, field)) {
+        if (requireProjection) fail('视角数据缺少字段 ' + field);
+        result[field] = DEFAULT_PROJECTION[field];
+        return;
       }
       var number = value[field];
       var range = VIEW_RANGES[field];
@@ -85,7 +106,7 @@
     } catch (error) {
       fail('保存的视角数据不是有效 JSON');
     }
-    if (!isPlainObject(envelope) || envelope.version !== 1) {
+    if (!isPlainObject(envelope) || (envelope.version !== 1 && envelope.version !== 2)) {
       fail('保存的视角数据版本或格式无效');
     }
     if (!Array.isArray(envelope.views) || envelope.views.length > MAX_VIEWS) {
@@ -105,7 +126,7 @@
       if (Object.prototype.hasOwnProperty.call(names, nameKey)) fail('视角名称不能重复');
       ids[id] = true;
       names[nameKey] = true;
-      views.push({ id: id, name: name, view: validateView(entry.view) });
+      views.push({ id: id, name: name, view: validateView(entry.view, envelope.version === 2) });
     });
 
     var selected = envelope.selected;
@@ -129,7 +150,7 @@
     if (!isPlainObject(state)) fail('视角状态必须是普通对象');
     var raw = JSON.stringify({ version: 1, views: state.views, selected: state.selected });
     var validated = decode(raw);
-    return JSON.stringify({ version: 1, views: validated.views, selected: validated.selected });
+    return JSON.stringify({ version: 2, views: validated.views, selected: validated.selected });
   }
 
   function safeFilename(name) {

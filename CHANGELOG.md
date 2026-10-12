@@ -1,5 +1,25 @@
 # Changelog / 更新日志
 
+## 1.3.0 - 2026-10-12
+
+**状态 / Status:** 稳定版 / Stable release
+
+### 中文
+
+- 程序、源码和发布版本统一为 `1.3.0`；[GitHub v1.3.0](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.3.0) 提供 Windows x64 EXE、NSIS 安装包与 SHA-256 校验文件，旧版发布记录保留。
+- 新增书厚会话调整：范围 `50%`–`300%`，步长 `5%`，默认 `100%`；支持闭合平装和闭合平直书脊精装，保存视角不记录书厚，重启恢复默认值。
+- 新增透视控制：FOV `10`–`70`、默认 `35`；水平/垂直消失点偏移 `-40`–`40`、默认 `0/0`；自动退远保持旋转和高度不变。
+- 保存视角统一为 8 个字段（`az`、`el`、`rotZ`、`zoom`、`height`、`fov`、`vanishX`、`vanishY`）；旧版 5 字段记录补默认投影值，v2 只在新版存储键缺失时读取 v1，且不覆盖旧存储。内置视角重置为 `35/0/0`，批量导出恢复全部 8 个字段。
+- 新增精确标签 `书脊淡阴影`：默认关闭，使用中心原色、边缘较暗的顶点色调；适用于两种书型、预览、PNG/JPG 单张导出和批量导出，不模糊或改动源图。阴影与书厚均为会话状态。
+
+### English
+
+- Unified application, source and release versions at `1.3.0`; [GitHub v1.3.0](https://github.com/CommonerOfWestWall/book-3d-generator/releases/tag/v1.3.0) provides Windows x64 EXE, NSIS installer and SHA-256 checksums. Previous releases are retained.
+- Added session-only thickness control from `50%` to `300%` in `5%` steps, default `100%`, for both closed paperback and closed flat-spine hardcover. Saved views do not include thickness; restart restores the default.
+- Added perspective controls: FOV `10`–`70`, default `35`; horizontal and vertical vanishing-point offsets `-40`–`40`, default `0/0`; automatic retreat preserves rotation and height.
+- Saved views now use eight fields (`az`, `el`, `rotZ`, `zoom`, `height`, `fov`, `vanishX`, `vanishY`). Legacy five-field records receive default projection values; v2 reads v1 only when the new storage key is absent and does not overwrite old storage. Built-in views reset to `35/0/0`, and batch export restores all eight fields.
+- Added the exact `书脊淡阴影` checkbox label. It is off by default and applies a center-original, darker-edge vertex tint to both book types, PNG/JPG single export and batch export without blurring or changing source images. Shadow and thickness are session-only.
+
 ## 1.2.0 - 2026-10-10
 
 ### 中文
