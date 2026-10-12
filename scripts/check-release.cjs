@@ -20,6 +20,7 @@ function checkRelease(root = path.resolve(__dirname, '..'), tag) {
     'Cargo.toml': read('src-tauri/Cargo.toml').match(/\[package\][\s\S]*?^version = "([^"]+)"/m)?.[1],
     'Cargo.lock': read('src-tauri/Cargo.lock').match(/\[\[package\]\]\r?\nname = "book-3d-app"\r?\nversion = "([^"]+)"/)?.[1],
     'renderer metadata': html.match(/name="application-version" content="([^"]+)"/)?.[1],
+    'renderer title': html.match(/<title>[^<]* v([^<]+)<\/title>/)?.[1],
     'renderer badge': html.match(/id="app-version">v([^<]+)</)?.[1]
   };
   for (const [file, actual] of Object.entries(versions)) assert.equal(actual, version, `${file} version mismatch`);

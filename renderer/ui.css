@@ -40,7 +40,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 .slider-value { color: var(--accent); font-size: 12px; }
 .slider-group { margin-bottom: 18px; }
 .panel-section[data-step="view"] .slider-group { margin-bottom: 12px; }
+.projection-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.projection-title .panel-title { margin-bottom: 0; }
+.projection-title .icon-btn { width: 32px; height: 32px; padding: 6px; }
 .control-row { gap: 10px; }
+#thickness-controls { margin-top: 24px; }
+.thickness-row { grid-template-columns: minmax(0, 1fr) 65px 38px; }
 input[type=range] { accent-color: var(--accent); background: #d7e2dc; height: 4px; min-width: 0; cursor: pointer; }
 input[type=range]::-webkit-slider-thumb { background: var(--accent); box-shadow: 0 0 0 3px #fff; border: 1px solid #fff; width: 15px; height: 15px; }
 .num-input, .crop-fields input { background: #fff; border: 1px solid var(--border); color: var(--text); border-radius: 4px; height: 34px; padding: 5px 7px; }

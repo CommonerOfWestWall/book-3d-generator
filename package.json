@@ -1,13 +1,13 @@
 {
   "name": "book-3d-app",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "立体书样机生成器 - 一键生成3D书籍效果图",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win dir --x64",
     "pack": "electron-builder --win dir --x64",
-    "test": "node --test tests/book-model.test.cjs tests/view-presets.test.cjs tests/release.test.cjs",
+    "test": "node --test tests/book-model.test.cjs tests/book-camera.test.cjs tests/view-presets.test.cjs tests/release.test.cjs",
     "check:release": "node scripts/check-release.cjs",
     "test:ui": "node tests/workflow.cjs",
     "tauri": "tauri",

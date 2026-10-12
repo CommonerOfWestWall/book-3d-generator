@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="application-version" content="1.2.0">
-<title>立体书样机生成器 v1.2.0</title>
+<meta name="application-version" content="1.3.0">
+<title>立体书样机生成器 v1.3.0</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -524,7 +524,7 @@ select:focus { outline: none; border-color: var(--accent); }
 
 <!-- 左侧面板 -->
 <div id="left-panel">
-  <header class="app-header"><span class="brand-mark" data-icon="BookOpen"></span><div><h1>立体书样机</h1><span class="brand-subtitle">BOOK 3D STUDIO <span id="app-version">v1.2.0</span></span></div></header>
+  <header class="app-header"><span class="brand-mark" data-icon="BookOpen"></span><div><h1>立体书样机</h1><span class="brand-subtitle">BOOK 3D STUDIO <span id="app-version">v1.3.0</span></span></div></header>
   <nav class="workflow-tabs" aria-label="工作流程">
     <button class="step-tab active" data-step="cover" aria-pressed="true">封面</button>
     <button class="step-tab" data-step="structure" aria-pressed="false">书型</button>
@@ -567,6 +567,18 @@ select:focus { outline: none; border-color: var(--accent); }
     <div id="type-label" style="text-align: center; margin-top: 8px; color: var(--accent); font-size: 13px;">
       平装本
     </div>
+    <div id="thickness-controls" class="slider-group">
+      <label class="slider-label" for="thickness-input">书厚拉伸 <span id="thickness-val">100%</span></label>
+      <div class="control-row thickness-row">
+        <input id="thickness-slider" type="range" min="50" max="300" step="5" value="100" aria-label="书厚拉伸">
+        <input id="thickness-input" class="num-input" type="number" min="50" max="300" step="5" value="100" aria-label="书厚拉伸百分比">
+        <button id="thickness-reset" class="btn btn-secondary icon-btn" title="还原书厚（100%）" aria-label="还原书厚"><span data-icon="RotateCcw"></span></button>
+      </div>
+    </div>
+    <label class="option-row" for="spine-shadow-toggle">
+      <input type="checkbox" id="spine-shadow-toggle">
+      <span>书脊淡阴影</span>
+    </label>
     <div id="hardcover-controls" hidden>
       <div class="slider-group"><label class="slider-label" for="board-input">封板厚度 / 封面宽度 <span id="board-val">1.2%</span></label><div class="control-row"><input id="board-slider" type="range" min="0.4" max="2.5" step="0.1" value="1.2" aria-label="封板厚度"><input id="board-input" class="num-input" type="number" min="0.4" max="2.5" step="0.1" value="1.2" aria-label="封板厚度百分比"></div></div>
       <div class="slider-group"><label class="slider-label" for="overhang-input">出飘 / 封面宽度 <span id="overhang-val">1.8%</span></label><div class="control-row"><input id="overhang-slider" type="range" min="0.5" max="4" step="0.1" value="1.8" aria-label="封板出飘"><input id="overhang-input" class="num-input" type="number" min="0.5" max="4" step="0.1" value="1.8" aria-label="封板出飘百分比"></div></div>
@@ -642,6 +654,22 @@ select:focus { outline: none; border-color: var(--accent); }
         <input type="range" id="height-slider" min="-6" max="6" value="0" step="0.25">
         <input type="number" class="num-input" id="height-input" min="-6" max="6" value="0" step="0.25">
       </div>
+    </div>
+  </div>
+
+  <div class="panel-section" data-step="view" hidden>
+    <div class="projection-title"><div class="panel-title">透视与灭点</div><button id="projection-reset" class="btn btn-secondary icon-btn" title="还原透视（35°，灭点居中）" aria-label="还原透视"><span data-icon="RotateCcw"></span></button></div>
+    <div class="slider-group">
+      <label class="slider-label" for="fov-input" title="较小角度更扁平，较大角度透视更强">透视视角 <span id="fov-val">35°</span></label>
+      <div class="control-row"><input id="fov-slider" type="range" min="10" max="70" step="1" value="35" aria-label="透视视角"><input id="fov-input" class="num-input" type="number" min="10" max="70" step="1" value="35" aria-label="透视视角度数"></div>
+    </div>
+    <div class="slider-group">
+      <label class="slider-label" for="vanishX-input" title="镜头灭点相对中心的位置，正值向右">灭点左右 <span id="vanishX-val">0%</span></label>
+      <div class="control-row"><input id="vanishX-slider" type="range" min="-40" max="40" step="1" value="0" aria-label="灭点左右"><input id="vanishX-input" class="num-input" type="number" min="-40" max="40" step="1" value="0" aria-label="灭点左右百分比"></div>
+    </div>
+    <div class="slider-group">
+      <label class="slider-label" for="vanishY-input" title="镜头灭点相对中心的位置，正值向上">灭点上下 <span id="vanishY-val">0%</span></label>
+      <div class="control-row"><input id="vanishY-slider" type="range" min="-40" max="40" step="1" value="0" aria-label="灭点上下"><input id="vanishY-input" class="num-input" type="number" min="-40" max="40" step="1" value="0" aria-label="灭点上下百分比"></div>
     </div>
   </div>
 
@@ -772,6 +800,7 @@ select:focus { outline: none; border-color: var(--accent); }
 <script src="three.min.js"></script>
 <script src="icons.js"></script>
 <script src="book-model.js"></script>
+<script src="book-camera.js"></script>
 <script src="view-presets.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════
@@ -783,15 +812,19 @@ let images = { cover: null, spine: null, back: null };
 let bookType = 'paperback';
 let bgType = 'transparent';
 let rotX = 0, rotY = 25, rotZ = 0, cameraDistance = 11.5, cameraHeight = 0;
+let cameraFov = 35, vanishX = 0, vanishY = 0;
 let spineLeft = 44, spineRight = 56;
 let flapCropEnabled = false;
 let cropLeft = 0, cropRight = 100;
 let isRendering = false;
 let loadedPreset = false;
-const viewStorageKey = 'book3d.camera-presets.v1';
+const viewStorageKey = 'book3d.camera-presets.v2';
 let savedViews = [], selectedViewIds = [], renamingViewId = null;
 let viewStorageBlocked = false;
 let bookSize = { w: 4.0, h: 5.66, d: 0.52 };
+let baseBookDepth = bookSize.d;
+let spineThicknessPercent = 100;
+let spineShadowEnabled = false;
 let coverEdgeColor = 0x22201b;
 let hingeColor = 0x34302b;
 let hardcoverOptions = { boardPercent: 1.2, overhangPercent: 1.8 };
@@ -903,16 +936,13 @@ function onResize() {
   const container = document.getElementById('canvas-container');
   canvasWidth = container.clientWidth;
   canvasHeight = container.clientHeight;
-  camera.aspect = canvasWidth / canvasHeight;
-  camera.updateProjectionMatrix();
+  BookCamera.applyProjection(camera, currentView(), canvasWidth / canvasHeight);
   renderer.setSize(canvasWidth, canvasHeight);
   renderer.render(scene, camera);
 }
 
 function updateCamera() {
-  const r = cameraDistance;
-  camera.position.set(0, cameraHeight, r);
-  camera.lookAt(0, 0, 0);
+  BookCamera.applyProjection(camera, currentView(), canvasWidth / canvasHeight);
   if (bookGroup) {
     bookGroup.rotation.set(
       THREE.MathUtils.degToRad(rotX),
@@ -977,6 +1007,23 @@ function makeDoubleTexMat(dataURL, options = {}) {
   const mat = makeTexMat(dataURL, options);
   mat.side = THREE.DoubleSide;
   return mat;
+}
+
+function applySpineShadow(mesh) {
+  if (!spineShadowEnabled) return;
+  const { width, height } = mesh.geometry.parameters;
+  mesh.geometry.dispose();
+  mesh.geometry = new THREE.PlaneGeometry(width, height, 32, 1);
+  const uv = mesh.geometry.attributes.uv;
+  const colors = [];
+  // Shade in linear space without resizing or filtering the spine artwork.
+  for (let i = 0; i < uv.count; i++) {
+    const edge = uv.getX(i) * 2 - 1;
+    const tint = 1 - 0.22 * edge * edge;
+    colors.push(tint, tint, tint);
+  }
+  mesh.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  mesh.material.vertexColors = true;
 }
 
 function makeDoublePageMat(tex) {
@@ -1091,8 +1138,10 @@ function addPaperbackCore(group, W, H, D) {
     const spineMat = makeDoubleTexMat(images.spine, { preserveDetail: true });
     const spineGeo = new THREE.PlaneGeometry(pageBlockW, H);
     const spineMesh = new THREE.Mesh(spineGeo, spineMat);
+    spineMesh.name = 'paperback-spine';
     spineMesh.position.set(-W / 2, 0, 0);
     spineMesh.rotation.y = -Math.PI / 2;
+    applySpineShadow(spineMesh);
     group.add(spineMesh);
   }
 
@@ -1138,7 +1187,8 @@ function addHardcover(group, W, H, D) {
     pageTop: makeDoublePageMat(makePageTexH(512, 128)),
     pageInner: makeFlatMat(0xe8e6df)
   };
-  BookModel.buildHardcover(THREE, group, W, H, D, hardcoverOptions, materials);
+  const { spine } = BookModel.buildHardcover(THREE, group, W, H, D, hardcoverOptions, materials);
+  applySpineShadow(spine);
   document.getElementById('board-effective').textContent = (layout.boardThick / W * 100).toFixed(2) + '%';
 }
 
@@ -1159,6 +1209,7 @@ function buildBook() {
   const W = bookSize.w;
   const H = bookSize.h;
   const D = bookSize.d || W * 0.13;
+  document.getElementById('depth-meta').textContent = (D / W * 100).toFixed(1) + '%';
 
   if (bookType === 'paperback') {
     addPaperbackCore(bookGroup, W, H, D);
@@ -1207,7 +1258,27 @@ function fitView() {
   if (!bookGroup) return;
   bookGroup.updateMatrixWorld(true);
   const sphere = new THREE.Box3().setFromObject(bookGroup).getBoundingSphere(new THREE.Sphere());
-  setCameraValues({ zoom: sphere.radius / Math.sin(THREE.MathUtils.degToRad(17.5)) * 1.12, height: 0 });
+  setCameraValues({ zoom: BookCamera.fitDistance(sphere.radius, currentView(), Math.min(1, camera.aspect)), height: 0 });
+}
+
+function keepProjectionFramed() {
+  if (!bookGroup) return;
+  bookGroup.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(bookGroup);
+  const aspect = Math.min(1, camera.aspect);
+  const checkCamera = camera.clone();
+  BookCamera.applyProjection(checkCamera, currentView(), aspect);
+  let clipped = false;
+  for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
+    const point = new THREE.Vector3(x, y, z).project(checkCamera);
+    if (Math.abs(point.x) > .96 || Math.abs(point.y) > .96 || Math.abs(point.z) > 1) clipped = true;
+  }
+  if (clipped) {
+    const sphere = box.getBoundingSphere(new THREE.Sphere());
+    const radiusDistance = BookCamera.fitDistance(sphere.radius, currentView(), aspect);
+    const zoom = Math.sqrt(Math.max(0, radiusDistance * radiusDistance - cameraHeight * cameraHeight));
+    setCameraValues({ zoom: Math.max(cameraDistance, zoom) });
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1311,13 +1382,16 @@ function syncCameraControls() {
     ['rotZ', rotZ],
     ['zoom', cameraDistance],
     ['height', cameraHeight],
+    ['fov', cameraFov],
+    ['vanishX', vanishX],
+    ['vanishY', vanishY],
   ];
   values.forEach(([id, value]) => {
     const slider = document.getElementById(id + '-slider');
     const input = document.getElementById(id + '-input');
     if (slider) slider.value = value;
     if (input) {
-      input.value = id === 'zoom' ? value.toFixed(1) : (id === 'height' ? value.toFixed(2) : value.toFixed(0));
+      input.value = ['fov', 'vanishX', 'vanishY'].includes(id) ? value : (id === 'zoom' ? value.toFixed(1) : (id === 'height' ? value.toFixed(2) : value.toFixed(0)));
     }
   });
   document.getElementById('az-val').textContent = rotX.toFixed(0) + '°';
@@ -1325,6 +1399,9 @@ function syncCameraControls() {
   document.getElementById('rotZ-val').textContent = rotZ.toFixed(0) + '°';
   document.getElementById('zoom-val').textContent = cameraDistance.toFixed(1);
   document.getElementById('height-val').textContent = cameraHeight.toFixed(2);
+  document.getElementById('fov-val').textContent = cameraFov + '°';
+  document.getElementById('vanishX-val').textContent = vanishX + '%';
+  document.getElementById('vanishY-val').textContent = vanishY + '%';
   updateAngleDisplay();
 }
 
@@ -1335,6 +1412,9 @@ function setCameraValues(values, keepPreset = false, exactSavedView = false) {
   if (values.zoom !== undefined) cameraDistance = clampValue(values.zoom, 8, Math.max(24, bookSize.h * 4, bookSize.d * 4, cameraDistance, exactSavedView ? values.zoom : 0));
   const heightLimit = Math.max(6, bookSize.h, Math.abs(cameraHeight), exactSavedView ? Math.abs(values.height) : 0);
   if (values.height !== undefined) cameraHeight = clampValue(values.height, -heightLimit, heightLimit);
+  if (values.fov !== undefined) cameraFov = clampValue(values.fov, 10, 70);
+  if (values.vanishX !== undefined) vanishX = clampValue(values.vanishX, -40, 40);
+  if (values.vanishY !== undefined) vanishY = clampValue(values.vanishY, -40, 40);
   loadedPreset = keepPreset;
   if (!keepPreset) document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
   syncCameraControls();
@@ -1380,6 +1460,26 @@ function initUI() {
 
   // 确认书脊
   document.getElementById('edit-crop-btn').addEventListener('click', () => showSpineModal(fullImageData, true));
+  const applyThickness = value => {
+    if (exportBusy) return;
+    spineThicknessPercent = Math.round(clampValue(value, 50, 300) / 5) * 5;
+    bookSize.d = baseBookDepth * (spineThicknessPercent / 100);
+    document.getElementById('thickness-input').value = spineThicknessPercent;
+    document.getElementById('thickness-slider').value = spineThicknessPercent;
+    document.getElementById('thickness-val').textContent = spineThicknessPercent + '%';
+    updateScene();
+  };
+  document.getElementById('thickness-slider').addEventListener('input', e => applyThickness(e.target.value));
+  document.getElementById('thickness-input').addEventListener('change', e => applyThickness(e.target.value));
+  document.getElementById('thickness-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') applyThickness(e.target.value);
+  });
+  document.getElementById('thickness-reset').addEventListener('click', () => applyThickness(100));
+  document.getElementById('spine-shadow-toggle').addEventListener('change', e => {
+    if (exportBusy) return;
+    spineShadowEnabled = e.target.checked;
+    updateScene();
+  });
   [['board', 'boardPercent', 0.4, 2.5], ['overhang', 'overhangPercent', 0.5, 4]].forEach(([id, key, min, max]) => {
     const apply = value => {
       const v = clampValue(value, min, max);
@@ -1396,17 +1496,24 @@ function initUI() {
   // 旋转和镜头控制
   [
     ['az', 'az'], ['el', 'el'], ['rotZ', 'rotZ'], ['zoom', 'zoom'], ['height', 'height'],
+    ['fov', 'fov'], ['vanishX', 'vanishX'], ['vanishY', 'vanishY'],
   ].forEach(([id, key]) => {
     const slider = document.getElementById(id + '-slider');
     const input = document.getElementById(id + '-input');
     const apply = value => {
+      if (exportBusy) return;
       setCameraValues({ [key]: value });
+      if (['fov', 'vanishX', 'vanishY'].includes(key)) keepProjectionFramed();
     };
     slider.addEventListener('input', e => apply(e.target.value));
     input.addEventListener('change', e => apply(e.target.value));
     input.addEventListener('keydown', e => {
       if (e.key === 'Enter') apply(e.target.value);
     });
+  });
+
+  document.getElementById('projection-reset').addEventListener('click', () => {
+    if (!exportBusy) setCameraValues({ fov: 35, vanishX: 0, vanishY: 0 });
   });
 
   // 书籍类型
@@ -1637,7 +1744,6 @@ async function applyCover(data) {
   updateScene();
   await waitForTextures();
   document.getElementById('aspect-meta').textContent = (bookSize.w / bookSize.h).toFixed(3) + ' : 1';
-  document.getElementById('depth-meta').textContent = (bookSize.d / bookSize.w * 100).toFixed(1) + '%';
   setStatus('ready', '预览已更新');
 }
 
@@ -1695,11 +1801,11 @@ function splitCover(img) {
   const frontAspect = coverW / img.height;
   const baseW = 4.0;
   const spineToCover = spineW / Math.max(1, coverW);
-  const depth = baseW * spineToCover;
+  baseBookDepth = baseW * spineToCover;
   bookSize = {
     w: baseW,
     h: baseW / frontAspect,
-    d: depth
+    d: baseBookDepth * (spineThicknessPercent / 100)
   };
 }
 
@@ -1823,7 +1929,7 @@ async function exportAll() {
   setExportBusy(true);
   const fmt = document.getElementById('export-format').value;
   const size = parseInt(document.getElementById('export-size').value);
-  const original = { az: rotX, el: rotY, rotZ, height: cameraHeight, zoom: cameraDistance };
+  const original = currentView();
   const preset = loadedPreset;
   const activePresets = [...document.querySelectorAll('.preset-btn')].map(btn => btn.classList.contains('active'));
   try {
@@ -1877,8 +1983,7 @@ async function getExportDataURL(fmt, size) {
   try {
     renderer.setPixelRatio(1);
     renderer.setSize(size, size, false);
-    camera.aspect = 1;
-    camera.updateProjectionMatrix();
+    BookCamera.applyProjection(camera, currentView(), 1);
     const white = fmt === 'jpg' || bgType === 'white';
     scene.background = white ? new THREE.Color(0xffffff) : null;
     renderer.setClearColor(white ? 0xffffff : 0x000000, white ? 1 : 0);
@@ -1902,7 +2007,8 @@ function getPresetView(btn) {
   return {
     az: Number(btn.dataset.az), el: Number(btn.dataset.el), rotZ: Number(btn.dataset.z || 0),
     height: Number(btn.dataset.height || 0) * bookSize.h / 5.66,
-    zoom: Number(btn.dataset.zoom || 11.5) * scale
+    zoom: Number(btn.dataset.zoom || 11.5) * scale,
+    fov: 35, vanishX: 0, vanishY: 0
   };
 }
 
@@ -1924,7 +2030,7 @@ function setExportBusy(busy) {
 }
 
 function currentView() {
-  return { az: rotX, el: rotY, rotZ, zoom: cameraDistance, height: cameraHeight };
+  return { az: rotX, el: rotY, rotZ, zoom: cameraDistance, height: cameraHeight, fov: cameraFov, vanishX, vanishY };
 }
 
 function builtInViewButtons() { return [...document.querySelectorAll('.preset-grid .preset-btn')]; }
@@ -1998,7 +2104,7 @@ function renderViewLists() {
     }
     row.appendChild(actions);
     const summary = document.createElement('div'); summary.className = 'view-summary';
-    summary.textContent = `X ${a.view.az.toFixed(1)}° · Y ${a.view.el.toFixed(1)}° · Z ${a.view.rotZ.toFixed(1)}° · 距离 ${a.view.zoom.toFixed(2)} · 高度 ${a.view.height.toFixed(2)}`;
+    summary.textContent = `X ${a.view.az.toFixed(1)}° · Y ${a.view.el.toFixed(1)}° · Z ${a.view.rotZ.toFixed(1)}° · 距离 ${a.view.zoom.toFixed(2)} · 高度 ${a.view.height.toFixed(2)} · 透视 ${a.view.fov}° · 灭点 ${a.view.vanishX}% / ${a.view.vanishY}%`;
     row.appendChild(summary); list.appendChild(row);
   });
   const batch = document.getElementById('batch-view-list'); batch.replaceChildren();
@@ -2064,7 +2170,9 @@ function setupViewPresets() {
   const builtIns = builtInViewButtons();
   selectedViewIds = builtIns.slice(0, 4).map(btn => btn.dataset.id);
   try {
-    const state = BookViewPresets.decode(localStorage.getItem(viewStorageKey));
+    const raw = localStorage.getItem(viewStorageKey);
+    // Seed the new format from legacy settings without modifying the old app's storage.
+    const state = BookViewPresets.decode(raw === null ? localStorage.getItem('book3d.camera-presets.v1') : raw);
     savedViews = state.views;
     if (state.selected !== null) {
       const validIds = [...builtIns.map(btn => btn.dataset.id), ...savedViews.map(a => a.id)];
